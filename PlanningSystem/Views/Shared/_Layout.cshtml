@@ -493,23 +493,22 @@
         .modal {
             display: none;
             position: fixed;
-            top: 0;
+            z-index: 1000;
             left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
         }
 
         .modal-content {
-            position: relative;
-            background-color: white;
+            background-color: #fefefe;
             margin: 15% auto;
             padding: 20px;
+            border: 1px solid #888;
             width: 80%;
             max-width: 500px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
         }
 
         .form-group {
@@ -519,14 +518,32 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: 500;
         }
 
-        .form-group input[type="text"] {
+        .form-control {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
         }
 
         .emoji-picker {
@@ -794,6 +811,36 @@
         #profileIcon:hover {
             transform: scale(1.1);
         }
+
+        .absence-block {
+            width: 100% !important;
+            left: 0 !important;
+            position: relative !important;
+            margin: 4px 0;
+            cursor: move;
+        }
+
+        .day-column .absence-block {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .absence-block .block-content {
+            justify-content: space-between;
+            padding: 8px;
+        }
+
+        .absence-block .time-range {
+            text-align: right;
+        }
+
+        .absence-block .block-reason {
+            display: block;
+            font-size: 0.8em;
+            font-style: italic;
+            margin-top: 4px;
+            color: rgba(255, 255, 255, 0.9);
+        }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -926,19 +973,47 @@
     </nav>
 
     <div class="overlay" id="overlay"></div>
-    <div class="time-input-popup" id="timeInputPopup">
-        <h3>Voer tijd in</h3>
-        <div class="time-input-group">
-            <label>Start tijd:</label>
-            <input type="time" id="startTime" value="09:00">
+    <div id="timeInputPopup" class="modal">
+        <div class="modal-content">
+            <h3>Tijd invoeren</h3>
+            <div class="form-group">
+                <label for="startTime">Start tijd:</label>
+                <input type="time" id="startTime" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="endTime">Eind tijd:</label>
+                <input type="time" id="endTime" class="form-control">
+            </div>
+            <button onclick="saveCustomTime()" class="btn btn-primary">Opslaan</button>
+            <button onclick="closeTimeInput()" class="btn btn-secondary">Annuleren</button>
         </div>
-        <div class="time-input-group">
-            <label>Eind tijd:</label>
-            <input type="time" id="endTime" value="17:00">
-        </div>
-        <div class="time-input-buttons">
-            <button class="cancel-btn" onclick="closeTimeInput()">Annuleren</button>
-            <button class="save-btn" onclick="saveCustomTime()">Opslaan</button>
+    </div>
+
+    <div id="absenceDetailsModal" class="modal">
+        <div class="modal-content">
+            <h3 id="absenceModalTitle">Details invoeren</h3>
+            <div id="sickDaysSection" style="display: none;">
+                <div class="form-group">
+                    <label for="sickDays">Aantal dagen ziek:</label>
+                    <input type="number" id="sickDays" class="form-control" min="1" value="1">
+                </div>
+            </div>
+            <div id="absenceReasonSection" style="display: none;">
+                <div class="form-group">
+                    <label for="absenceReason">Reden voor afwezigheid:</label>
+                    <textarea id="absenceReason" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="absenceStartTime">Start tijd:</label>
+                    <input type="time" id="absenceStartTime" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="absenceEndTime">Eind tijd:</label>
+                    <input type="time" id="absenceEndTime" class="form-control">
+                </div>
+            </div>
+            <button onclick="saveAbsenceDetails()" class="btn btn-primary">Opslaan</button>
+            <button onclick="closeAbsenceDetails()" class="btn btn-secondary">Annuleren</button>
         </div>
     </div>
     <div class="sidebar">
@@ -1651,6 +1726,8 @@
         let pendingDropData = null;
         let pendingDropTarget = null;
         let isWeekView = false;
+        let pendingAbsenceData = null;
+        let pendingAbsenceTarget = null;
 
         function updateCalendar() {
             const monthNames = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 
@@ -1832,7 +1909,7 @@
                             data.dayIndex = dayIndex;
                             
                             if (data.type === 'shift' && (data.id === "3" || data.id === "4")) {
-                                showTimeInput(data, employeeRow, column);
+                                showAbsenceDetails(data, employeeRow, column);
                     } else {
                                 createTimeBlock(data, employeeRow, column);
                             }
@@ -1843,6 +1920,74 @@
                 });
             });
         });
+
+        function showAbsenceDetails(data, target, column = null) {
+            pendingAbsenceData = data;
+            pendingAbsenceTarget = target;
+            
+            const modal = document.getElementById('absenceDetailsModal');
+            const sickDaysSection = document.getElementById('sickDaysSection');
+            const absenceReasonSection = document.getElementById('absenceReasonSection');
+            const modalTitle = document.getElementById('absenceModalTitle');
+            
+            // Reset form
+            document.getElementById('sickDays').value = '1';
+            document.getElementById('absenceReason').value = '';
+            document.getElementById('absenceStartTime').value = '09:00';
+            document.getElementById('absenceEndTime').value = '17:00';
+            
+            if (data.id === "3") { // Ziek
+                modalTitle.textContent = "Ziekmelding";
+                sickDaysSection.style.display = 'block';
+                absenceReasonSection.style.display = 'none';
+            } else if (data.id === "4") { // Anders
+                modalTitle.textContent = "Afwezigheid details";
+                sickDaysSection.style.display = 'none';
+                absenceReasonSection.style.display = 'block';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeAbsenceDetails() {
+            document.getElementById('absenceDetailsModal').style.display = 'none';
+            pendingAbsenceData = null;
+            pendingAbsenceTarget = null;
+        }
+
+        function saveAbsenceDetails() {
+            if (!pendingAbsenceData || !pendingAbsenceTarget) return;
+            
+            if (pendingAbsenceData.id === "3") { // Ziek
+                const sickDays = parseInt(document.getElementById('sickDays').value) || 1;
+                
+                // Create sick blocks for multiple days
+                for (let i = 0; i < sickDays; i++) {
+                    const data = {
+                        ...pendingAbsenceData,
+                        startTime: '09:00',
+                        endTime: '17:00',
+                        dayIndex: (parseInt(pendingAbsenceData.dayIndex) + i) % 7,
+                        reason: `Ziekmelding (Dag ${i + 1}/${sickDays})`
+                    };
+                    createTimeBlock(data, pendingAbsenceTarget);
+                }
+            } else if (pendingAbsenceData.id === "4") { // Anders
+                const reason = document.getElementById('absenceReason').value;
+                const startTime = document.getElementById('absenceStartTime').value;
+                const endTime = document.getElementById('absenceEndTime').value;
+                
+                const data = {
+                    ...pendingAbsenceData,
+                    startTime: startTime,
+                    endTime: endTime,
+                    reason: reason
+                };
+                createTimeBlock(data, pendingAbsenceTarget);
+            }
+            
+            closeAbsenceDetails();
+        }
 
         function showTimeInput(data, target, column = null) {
             pendingDropData = data;
@@ -1873,9 +2018,14 @@
         function createTimeBlock(data, target, column = null) {
             const timeBlock = document.createElement('div');
             timeBlock.className = 'time-block';
+            
+            const isAbsenceBlock = data.id === "3" || data.id === "4";
+            if (isAbsenceBlock) {
+                timeBlock.classList.add('absence-block');
+            }
+            
             timeBlock.dataset.employee = target.dataset.employeeId;
             
-            // Set data attributes
             if (data.type === 'function') {
                 timeBlock.dataset.functionId = data.id;
                 timeBlock.dataset.functionName = data.name;
@@ -1886,38 +2036,38 @@
                 timeBlock.dataset.shiftIcon = data.icon;
             }
             
-                timeBlock.dataset.startTime = data.startTime || '09:00';
-                timeBlock.dataset.endTime = data.endTime || '17:00';
+            timeBlock.dataset.startTime = data.startTime || '09:00';
+            timeBlock.dataset.endTime = data.endTime || '17:00';
             timeBlock.dataset.dayIndex = data.dayIndex || 0;
             
-            // Create block content with improved styling
+            if (data.reason) {
+                timeBlock.dataset.reason = data.reason;
+            }
+            
             const blockContent = document.createElement('div');
             blockContent.className = 'block-content';
-            blockContent.style.display = 'flex';
-            blockContent.style.alignItems = 'center';
-            blockContent.style.gap = '8px';
-            blockContent.style.width = '100%';
             
             const icon = document.createElement('span');
             icon.className = 'block-icon';
             icon.textContent = data.icon;
-            icon.style.fontSize = '1.2em';
             
             const info = document.createElement('div');
             info.className = 'block-info';
-            info.style.flex = '1';
             
             const title = document.createElement('span');
             title.className = 'block-title';
             title.textContent = data.name;
-            title.style.fontWeight = '500';
-            title.style.display = 'block';
             
             const timeRange = document.createElement('span');
             timeRange.className = 'time-range';
             timeRange.textContent = `${timeBlock.dataset.startTime} - ${timeBlock.dataset.endTime}`;
-            timeRange.style.fontSize = '0.8em';
-            timeRange.style.opacity = '0.9';
+            
+            if (data.reason) {
+                const reasonText = document.createElement('span');
+                reasonText.className = 'block-reason';
+                reasonText.textContent = data.reason;
+                info.appendChild(reasonText);
+            }
             
             info.appendChild(title);
             info.appendChild(timeRange);
@@ -1926,7 +2076,6 @@
             blockContent.appendChild(info);
             timeBlock.appendChild(blockContent);
             
-            // Add delete button
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-btn';
             deleteBtn.innerHTML = '×';
@@ -1937,10 +2086,14 @@
             };
             timeBlock.appendChild(deleteBtn);
             
-            // Set background color
             timeBlock.style.backgroundColor = data.color || '#007bff';
             
-            // Add to the specific column if provided, otherwise use day index
+            if (isAbsenceBlock) {
+                timeBlock.style.width = '100%';
+                timeBlock.style.left = '0';
+                timeBlock.style.position = 'relative';
+            }
+            
             if (column) {
                 column.appendChild(timeBlock);
             } else if (isWeekView) {
@@ -1958,84 +2111,61 @@
         }
 
         function makeBlockDraggable(block) {
-            let isDragging = false;
-            let startX, startY, initialX, initialY;
+            // Check if the block is "Ziek" or "Anders"
+            const isAbsenceBlock = block.dataset.shiftId === "3" || block.dataset.shiftId === "4";
+            const parentColumn = block.closest('.day-column');
             
-            block.addEventListener('mousedown', function(e) {
-                if (e.target.classList.contains('delete-btn')) return;
-                
-                isDragging = true;
-                startX = e.clientX - block.offsetLeft;
-                startY = e.clientY - block.offsetTop;
-                initialX = block.offsetLeft;
-                initialY = block.offsetTop;
-                
-                block.style.zIndex = '1000';
-                block.style.cursor = 'grabbing';
-            });
-            
-            document.addEventListener('mousemove', function(e) {
-                if (!isDragging) return;
-                
-                e.preventDefault();
-                
-                const newX = e.clientX - startX;
-                const newY = e.clientY - startY;
-                
-                if (isWeekView) {
-                    // In week view, snap to day columns
-                    const dayWidth = 200;
-                    const dayIndex = Math.round(newX / dayWidth);
-                    const boundedX = Math.max(0, Math.min(dayIndex * dayWidth, 6 * dayWidth));
-                    
-                    // Snap to 30-minute intervals vertically
-                    const snappedY = Math.round(newY / 30) * 30;
-                    const boundedY = Math.max(0, Math.min(snappedY, 450 - block.offsetHeight));
-                    
-                    block.style.left = `${boundedX}px`;
-                    block.style.top = `${boundedY}px`;
-                } else {
-                    // In day view, snap to 30-minute intervals horizontally
-                    const snappedX = Math.round(newX / 30) * 30;
-                    const boundedX = Math.max(0, Math.min(snappedX, 24 * 60 - block.offsetWidth));
-                    
-                    block.style.left = `${boundedX}px`;
-                }
-            });
-            
-            document.addEventListener('mouseup', function() {
-                if (!isDragging) return;
-                
-                isDragging = false;
-                block.style.zIndex = '';
-                block.style.cursor = '';
-                
-                // Update times based on new position
-                if (isWeekView) {
-                    const dayIndex = Math.round(parseFloat(block.style.left) / 200);
-                    const startMinutes = parseFloat(block.style.top);
-                    const durationMinutes = parseFloat(block.style.height);
-                    
-                    block.dataset.startTime = minutesToTime(startMinutes);
-                    block.dataset.endTime = minutesToTime(startMinutes + durationMinutes);
-                    block.dataset.dayIndex = dayIndex;
-                } else {
-                    const startMinutes = parseFloat(block.style.left);
-                    const durationMinutes = parseFloat(block.style.width);
-                    
-                    block.dataset.startTime = minutesToTime(startMinutes);
-                    block.dataset.endTime = minutesToTime(startMinutes + durationMinutes);
-                }
-                
-                // Update time display
-                const timeDisplay = block.querySelector('.time-range');
-                if (timeDisplay) {
-                    timeDisplay.textContent = `${block.dataset.startTime} - ${block.dataset.endTime}`;
-                }
-                
-                // Save changes
-                saveTimeBlock(block);
-            });
+            interact(block)
+                .draggable({
+                    inertia: true,
+                    modifiers: [
+                        interact.modifiers.restrictRect({
+                            restriction: isAbsenceBlock ? parentColumn : '.time-grid',
+                            endOnly: true
+                        })
+                    ],
+                    listeners: {
+                        move: function(event) {
+                            const target = event.target;
+                            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                            
+                            if (isAbsenceBlock) {
+                                // Only allow vertical movement within column
+                                target.style.transform = `translate(0px, ${y}px)`;
+                                target.setAttribute('data-x', 0);
+                                target.setAttribute('data-y', y);
+                            } else {
+                                // Normal dragging behavior for other blocks
+                                const snappedX = Math.round(x / 30) * 30;
+                                const maxX = (24 * 60) - parseFloat(target.style.width);
+                                const boundedX = Math.min(Math.max(0, snappedX), maxX);
+                                
+                                target.style.transform = `translate(${boundedX}px, ${y}px)`;
+                                target.setAttribute('data-x', boundedX);
+                                target.setAttribute('data-y', y);
+                                
+                                updateTimeDisplay(target);
+                            }
+                        },
+                        start: function(event) {
+                            event.target.classList.add('dragging');
+                        },
+                        end: function(event) {
+                            const target = event.target;
+                            target.classList.remove('dragging');
+                            
+                            if (isAbsenceBlock) {
+                                // Reset horizontal position for absence blocks
+                                const y = parseFloat(target.getAttribute('data-y')) || 0;
+                                target.style.transform = `translate(0px, ${y}px)`;
+                                target.setAttribute('data-x', 0);
+                            }
+                            
+                            saveTimeBlock(target);
+                        }
+                    }
+                });
         }
 
         function saveTimeBlock(block) {
@@ -2299,7 +2429,7 @@
                     parsedData.dayIndex = dayIndex;
                     
                     if (parsedData.type === 'shift' && (parsedData.id === "3" || parsedData.id === "4")) {
-                        showTimeInput(parsedData, employeeRow, column);
+                        showAbsenceDetails(parsedData, employeeRow, column);
                     } else {
                         createTimeBlock(parsedData, employeeRow, column);
                     }
@@ -2523,7 +2653,7 @@
                         dayIndex: timeBlock.dataset.dayIndex
                     };
                     if (service.id === "3" || service.id === "4") {
-                        showTimeInput(data, timeBlock.closest('.employee-row'));
+                        showAbsenceDetails(data, timeBlock.closest('.employee-row'));
                     } else {
                         createTimeBlock(data, timeBlock.closest('.employee-row'));
                     }
@@ -2657,6 +2787,59 @@
             loadSchedule();
             setupDragAndDrop();
         });
+
+        interact('.time-block')
+            .draggable({
+                inertia: true,
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        restriction: 'parent',
+                        endOnly: true
+                    })
+                ],
+                listeners: {
+                    move: dragMoveListener,
+                    start: function (event) {
+                        event.target.classList.add('dragging');
+                    },
+                    end: function (event) {
+                        event.target.classList.remove('dragging');
+                    }
+                }
+            });
+
+        function dragMoveListener(event) {
+            const target = event.target;
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+            
+            // Snap to 30-minute intervals (30px)
+            const snappedX = Math.round(x / 30) * 30;
+            
+            // Ensure we don't go below 0 or beyond 23:59
+            const maxX = (24 * 60) - parseFloat(target.style.width);
+            const boundedX = Math.min(Math.max(0, snappedX), maxX);
+            
+            target.style.transform = `translate(${boundedX}px, ${y}px)`;
+            target.setAttribute('data-x', boundedX);
+            target.setAttribute('data-y', y);
+            
+            // Update time display
+            const startMinutes = boundedX;
+            const durationMinutes = parseFloat(target.style.width);
+            
+            const startTime = minutesToTime(startMinutes);
+            const endTime = minutesToTime(startMinutes + durationMinutes);
+            
+            const timeDisplay = target.querySelector('.time-range');
+            if (timeDisplay) {
+                timeDisplay.textContent = `${startTime} - ${endTime}`;
+            }
+            
+            // Update data attributes
+            target.dataset.startTime = startTime;
+            target.dataset.endTime = endTime;
+        }
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
