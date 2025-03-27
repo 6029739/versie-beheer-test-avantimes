@@ -53,7 +53,7 @@
             padding-top: 20px;
             z-index: 999;
         }
-
+/
         .left-nav a {
             color: white;
             padding: 15px;
@@ -237,58 +237,43 @@
         }
 
         .time-block {
-            margin: 4px auto;
+            position: absolute;
+            margin: 4px;
             padding: 8px;
             border-radius: 4px;
-            font-size: 0.9em;
-            background-color: #f8f9fa;
-            border: 1px solid rgba(0,0,0,0.1);
-            color: white;
             cursor: move;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-            width: calc(100% - 16px);
-            min-height: 40px;
-            overflow: hidden;
+            user-select: none;
+            width: calc(100% - 8px);
+            box-sizing: border-box;
         }
 
         .time-block .block-content {
             display: flex;
             align-items: center;
             gap: 8px;
-            width: 100%;
-            min-width: 0;
-        }
-
-        .time-block .block-icon {
-            font-size: 1.2em;
-            flex-shrink: 0;
         }
 
         .time-block .block-info {
-            display: flex;
-            flex-direction: column;
             flex: 1;
             min-width: 0;
         }
 
-        .time-block .block-title {
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
+        .time-block .block-reason {
+            display: block;
+            font-size: 0.8em;
+            font-style: italic;
+            margin-top: 4px;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .time-block .time-range {
             font-size: 0.8em;
             opacity: 0.9;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
+        }
+
+        .time-block.dragging {
+            opacity: 0.8;
+            z-index: 1000;
         }
 
         .time-block .delete-btn {
@@ -2111,8 +2096,6 @@
         }
 
         function makeBlockDraggable(block) {
-            // Check if the block is "Ziek" or "Anders"
-            const isAbsenceBlock = block.dataset.shiftId === "3" || block.dataset.shiftId === "4";
             const parentColumn = block.closest('.day-column');
             
             interact(block)
@@ -2120,7 +2103,7 @@
                     inertia: true,
                     modifiers: [
                         interact.modifiers.restrictRect({
-                            restriction: isAbsenceBlock ? parentColumn : '.time-grid',
+                            restriction: parentColumn,
                             endOnly: true
                         })
                     ],
@@ -2130,23 +2113,18 @@
                             const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                             const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
                             
-                            if (isAbsenceBlock) {
-                                // Only allow vertical movement within column
-                                target.style.transform = `translate(0px, ${y}px)`;
-                                target.setAttribute('data-x', 0);
-                                target.setAttribute('data-y', y);
-                            } else {
-                                // Normal dragging behavior for other blocks
-                                const snappedX = Math.round(x / 30) * 30;
-                                const maxX = (24 * 60) - parseFloat(target.style.width);
-                                const boundedX = Math.min(Math.max(0, snappedX), maxX);
-                                
-                                target.style.transform = `translate(${boundedX}px, ${y}px)`;
-                                target.setAttribute('data-x', boundedX);
-                                target.setAttribute('data-y', y);
-                                
-                                updateTimeDisplay(target);
-                            }
+                            // Snap to 30-minute intervals
+                            const snappedX = Math.round(x / 30) * 30;
+                            const columnWidth = parentColumn.offsetWidth;
+                            const blockWidth = target.offsetWidth;
+                            const maxX = columnWidth - blockWidth;
+                            const boundedX = Math.min(Math.max(0, snappedX), maxX);
+                            
+                            target.style.transform = `translate(${boundedX}px, ${y}px)`;
+                            target.setAttribute('data-x', boundedX);
+                            target.setAttribute('data-y', y);
+                            
+                            updateTimeDisplay(target);
                         },
                         start: function(event) {
                             event.target.classList.add('dragging');
@@ -2154,14 +2132,6 @@
                         end: function(event) {
                             const target = event.target;
                             target.classList.remove('dragging');
-                            
-                            if (isAbsenceBlock) {
-                                // Reset horizontal position for absence blocks
-                                const y = parseFloat(target.getAttribute('data-y')) || 0;
-                                target.style.transform = `translate(0px, ${y}px)`;
-                                target.setAttribute('data-x', 0);
-                            }
-                            
                             saveTimeBlock(target);
                         }
                     }
