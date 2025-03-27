@@ -1,0 +1,2664 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Planning System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <style>
+        .top-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-profile img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+
+        .left-nav {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 0;
+            width: 60px;
+            background-color: #34495e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            z-index: 999;
+        }
+
+        .left-nav a {
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .left-nav a:hover {
+            background-color: #2c3e50;
+        }
+
+        .sidebar {
+            width: 250px;
+            position: fixed;
+            top: 60px;
+            left: 60px;
+            height: calc(100vh - 60px);
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            margin-left: 310px;
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        .filters-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filter-button {
+            padding: 6px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .department-section {
+            margin-bottom: 30px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .department-header {
+            background-color: #004b8d;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .week-header {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            background-color: white;
+        }
+
+        .week-day {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-right: 1px solid #dee2e6;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .week-day.current {
+            background-color: #004b8d;
+            color: white;
+        }
+
+        .employee-row {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            min-height: 50px;
+            width: 100%;
+        }
+
+        .employee-name {
+            width: 100px;
+            padding: 8px;
+            background-color: #f5f5f5;
+            border-right: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .employee-schedule {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .day-column {
+            flex: 1;
+            min-width: 0;
+            min-height: 50px;
+            border-right: 1px solid #ddd;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-block {
+            position: absolute;
+            left: 0;
+            right: 0;
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            z-index: 1;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .task-block .task-content {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .task-block .task-emoji {
+            margin-right: 4px;
+        }
+
+        .task-block .task-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .task-block .task-time {
+            font-size: 10px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .day-column.dragover {
+            background-color: rgba(0, 123, 255, 0.1);
+            border: 2px dashed #007bff;
+        }
+
+        .shift-section {
+            margin-bottom: 0;
+        }
+
+        .shift-header {
+            padding: 8px 15px;
+            font-weight: 500;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            color: #333;
+        }
+
+        .time-block {
+            margin: 4px auto;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            background-color: #f8f9fa;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: white;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            width: calc(100% - 16px);
+            min-height: 40px;
+            overflow: hidden;
+        }
+
+        .time-block .block-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .time-block .block-icon {
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .time-block .block-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .time-block .block-title {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .time-block .time-range {
+            font-size: 0.8em;
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .time-block .delete-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .time-block:hover .delete-btn {
+            display: flex;
+        }
+
+        .time-block.highlight {
+            background-color: #e3f2fd;
+            border-left: 3px solid #1976d2;
+        }
+
+        .timeline-hours,
+        #dayTimeline,
+        #weekTimeline {
+            display: none !important;
+        }
+
+        .timeline-header {
+            display: none;
+        }
+
+        .time-range {
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .calendar {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 5px;
+        }
+
+        .calendar-nav button {
+            background: none;
+            border: none;
+            padding: 3px 8px;
+            cursor: pointer;
+            color: #007bff;
+            font-size: 0.9em;
+        }
+
+        .calendar-nav button:hover {
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .calendar-month {
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 3px;
+            color: #666;
+            font-size: 0.8em;
+        }
+
+        .calendar-day {
+            text-align: center;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            font-size: 0.85em;
+        }
+
+        .calendar-day:hover {
+            background-color: #f0f0f0;
+        }
+
+        .calendar-day.today {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .calendar-day.selected {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+
+        .calendar-day.weekend {
+            color: #dc3545;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        .function-button, .service-button {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: move;
+            user-select: none;
+            position: relative;
+        }
+
+        .service-button {
+            justify-content: space-between;
+        }
+
+        .function-button.dragging, .service-button.dragging {
+            opacity: 0.6;
+            transform: scale(0.95);
+        }
+
+        .function-button:hover, .service-button:hover {
+            background-color: #e9ecef;
+            color: #007bff;
+        }
+
+        .function-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .service-button.active {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .button-icon {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .time-info {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .color-indicator {
+            width: 3px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .emoji-picker {
+            position: relative;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .emoji-grid span {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .emoji-grid span:hover {
+            background-color: #f0f0f0;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-presets {
+            display: flex;
+            gap: 5px;
+        }
+
+        .color-presets span {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-presets span:hover {
+            border-color: #000;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .modal-buttons button:first-child {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-buttons button:last-child {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .context-menu {
+            display: block;
+            position: fixed;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            padding: 5px 0;
+            min-width: 150px;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+        }
+
+        .context-menu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .functions-container {
+            min-height: 50px;
+            margin-top: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 0.9em;
+            cursor: context-menu;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .functions-container:hover {
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+        .time-block-context-menu {
+            display: block;
+            position: fixed;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            padding: 5px 0;
+            min-width: 200px;
+        }
+
+        .time-block-context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+        }
+
+        .time-block-context-menu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .time-block-context-menu-section {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .time-block-context-menu-section:last-child {
+            border-bottom: none;
+        }
+
+        .time-block-context-menu-title {
+            padding: 5px 15px;
+            color: #666;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+            margin-left: auto;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        #employeeSearch {
+            width: 100%;
+            padding: 6px 12px 6px 35px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: border-color 0.2s;
+        }
+
+        #employeeSearch:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .employee-row.hidden {
+            display: none;
+        }
+
+        .auth-menu {
+            position: fixed;
+            top: 60px;
+            right: -300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            transition: right 0.3s ease-in-out;
+            padding: 20px;
+        }
+        
+        .auth-menu.active {
+            right: 0;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .auth-input-group {
+            margin-bottom: 15px;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .auth-button:hover {
+            background-color: #0056b3;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .auth-tab.active {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+        }
+
+        #profileIcon {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #profileIcon:hover {
+            transform: scale(1.1);
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="top-header">
+        <div class="header-title">Executive | Algemeen</div>
+        <div class="user-profile">
+            <span>Joël Rosier</span>
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUiIGhlaWdodD0iMzUiIHZpZXdCb3g9IjAgMCAzNSAzNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzUiIGhlaWdodD0iMzUiIGZpbGw9IiNFNUU1RTUiLz48cGF0aCBkPSJNMTcuNSAxNy41QzE5LjQzIDE3LjUgMjEgMTUuOTMgMjEgMTRDMjEgMTIuMDcgMTkuNDMgMTAuNSAxNy41IDEwLjVDMTUuNTcgMTAuNSAxNCAxMi4wNyAxNCAxNEMxNCAxNS45MyAxNS41NyAxNy41IDE3LjUgMTcuNVpNMTcuNSAxOS41QzE1LjA1IDE5LjUgOSAxOS45NSA5IDIyLjRWMjQuNUgxNlYyMi40QzE2IDIxLjA1IDE2LjY1IDIwLjUgMTcuNSAyMC41QzE4LjM1IDIwLjUgMTkgMjEuMDUgMTkgMjIuNFYyNC41SDI2VjIyLjRDMjYgMTkuOTUgMTkuOTUgMTkuNSAxNy41IDE5LjVaIiBmaWxsPSIjOTk5OTk5Ii8+PC9zdmc+;" alt="Profile" id="profileIcon" />
+            <div class="auth-menu" id="authMenu">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Inloggen</button>
+                    <button class="auth-tab" data-tab="register">Registreren</button>
+                </div>
+                
+                <div class="auth-content" id="loginContent">
+                    <div class="auth-input-group">
+                        <input type="email" placeholder="E-mail" class="auth-input" />
+                    </div>
+                    <div class="auth-input-group">
+                        <input type="password" placeholder="Wachtwoord" class="auth-input" />
+                    </div>
+                    <button class="auth-button">Inloggen</button>
+                </div>
+
+                <div class="auth-content" id="registerContent" style="display: none;">
+                    <div class="auth-input-group">
+                        <input type="text" placeholder="Naam" class="auth-input" />
+                    </div>
+                    <div class="auth-input-group">
+                        <input type="email" placeholder="E-mail" class="auth-input" />
+                    </div>
+                    <div class="auth-input-group">
+                        <input type="password" placeholder="Wachtwoord" class="auth-input" />
+                    </div>
+                    <div class="auth-input-group">
+                        <input type="password" placeholder="Bevestig wachtwoord" class="auth-input" />
+                    </div>
+                    <button class="auth-button">Registreren</button>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const profileIcon = document.getElementById('profileIcon');
+                    const authMenu = document.getElementById('authMenu');
+                    const authTabs = document.querySelectorAll('.auth-tab');
+                    const loginContent = document.getElementById('loginContent');
+                    const registerContent = document.getElementById('registerContent');
+
+                    // Toggle menu
+                    profileIcon.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        authMenu.classList.toggle('active');
+                    });
+
+                    // Close menu when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!authMenu.contains(e.target) && !profileIcon.contains(e.target)) {
+                            authMenu.classList.remove('active');
+                        }
+                    });
+
+                    // Tab switching
+                    authTabs.forEach(tab => {
+                        tab.addEventListener('click', function() {
+                            // Remove active class from all tabs
+                            authTabs.forEach(t => t.classList.remove('active'));
+                            // Add active class to clicked tab
+                            this.classList.add('active');
+
+                            // Show corresponding content
+                            if (this.dataset.tab === 'login') {
+                                loginContent.style.display = 'block';
+                                registerContent.style.display = 'none';
+                            } else {
+                                loginContent.style.display = 'none';
+                                registerContent.style.display = 'block';
+                            }
+                        });
+                    });
+
+                    // Handle form submissions
+                    const loginButton = loginContent.querySelector('.auth-button');
+                    const registerButton = registerContent.querySelector('.auth-button');
+
+                    loginButton.addEventListener('click', function() {
+                        const email = loginContent.querySelector('input[type="email"]').value;
+                        const password = loginContent.querySelector('input[type="password"]').value;
+                        
+                        if (email && password) {
+                            alert('Inloggen gelukt! (Demo)');
+                            authMenu.classList.remove('active');
+                        } else {
+                            alert('Vul alle velden in');
+                        }
+                    });
+
+                    registerButton.addEventListener('click', function() {
+                        const name = registerContent.querySelector('input[type="text"]').value;
+                        const email = registerContent.querySelector('input[type="email"]').value;
+                        const password = registerContent.querySelectorAll('input[type="password"]')[0].value;
+                        const confirmPassword = registerContent.querySelectorAll('input[type="password"]')[1].value;
+
+                        if (name && email && password && confirmPassword) {
+                            if (password === confirmPassword) {
+                                alert('Registratie gelukt! (Demo)');
+                                authMenu.classList.remove('active');
+                            } else {
+                                alert('Wachtwoorden komen niet overeen');
+                            }
+                        } else {
+                            alert('Vul alle velden in');
+                        }
+                    });
+                });
+            </script>
+            <a href="#" style="color: white; margin-left: 10px;"><i class="fas fa-bell"></i></a>
+            <a href="#" style="color: white;"><i class="fas fa-envelope"></i></a>
+            <a href="#" style="color: white;"><i class="fas fa-cog"></i></a>
+        </div>
+    </header>
+
+    <!-- Left Navigation -->
+    <nav class="left-nav">
+        <a href="#" title="Dashboard"><i class="fas fa-chart-line"></i></a>
+        <a href="#" title="Employees"><i class="fas fa-users"></i></a>
+        <a href="#" title="Calendar"><i class="fas fa-calendar"></i></a>
+        <a href="#" title="Time"><i class="fas fa-clock"></i></a>
+    </nav>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="time-input-popup" id="timeInputPopup">
+        <h3>Voer tijd in</h3>
+        <div class="time-input-group">
+            <label>Start tijd:</label>
+            <input type="time" id="startTime" value="09:00">
+        </div>
+        <div class="time-input-group">
+            <label>Eind tijd:</label>
+            <input type="time" id="endTime" value="17:00">
+        </div>
+        <div class="time-input-buttons">
+            <button class="cancel-btn" onclick="closeTimeInput()">Annuleren</button>
+            <button class="save-btn" onclick="saveCustomTime()">Opslaan</button>
+        </div>
+    </div>
+    <div class="sidebar">
+        <div class="calendar">
+            <div class="calendar-header">
+                <div class="calendar-nav">
+                    <button onclick="previousMonth()">&lt;</button>
+                    <span class="calendar-month" id="currentMonth"></span>
+                    <button onclick="nextMonth()">&gt;</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <div class="calendar-day-header">Ma</div>
+                <div class="calendar-day-header">Di</div>
+                <div class="calendar-day-header">Wo</div>
+                <div class="calendar-day-header">Do</div>
+                <div class="calendar-day-header">Vr</div>
+                <div class="calendar-day-header">Za</div>
+                <div class="calendar-day-header">Zo</div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Functies</div>
+            <div class="function-button" draggable="true" data-function-id="1" data-function-name="Manager" data-function-icon="👨‍💼" data-function-color="#dc3545" style="border-left: 4px solid #dc3545;" ondragstart="handleDragStart(event)">
+                <span class="button-icon">👨‍💼</span>
+                Manager
+                <span class="color-indicator" style="background-color: #dc3545;"></span>
+            </div>
+            <div class="function-button" draggable="true" data-function-id="2" data-function-name="Bediener" data-function-icon="👨‍🍳" data-function-color="#28a745" style="border-left: 4px solid #28a745;" ondragstart="handleDragStart(event)">
+                <span class="button-icon">👨‍🍳</span>
+                Bediener
+                <span class="color-indicator" style="background-color: #28a745;"></span>
+            </div>
+            <div class="function-button" draggable="true" data-function-id="3" data-function-name="Kok" data-function-icon="🍳" data-function-color="#007bff" style="border-left: 4px solid #007bff;" ondragstart="handleDragStart(event)">
+                <span class="button-icon">🍳</span>
+                Kok
+                <span class="color-indicator" style="background-color: #007bff;"></span>
+            </div>
+            <div class="function-button" draggable="true" data-function-id="4" data-function-name="Schoonmaker" data-function-icon="🧹" data-function-color="#ffc107" style="border-left: 4px solid #ffc107;" ondragstart="handleDragStart(event)">
+                <span class="button-icon">🧹</span>
+                Schoonmaker
+                <span class="color-indicator" style="background-color: #ffc107;"></span>
+            </div>
+            <div class="functions-container" oncontextmenu="showContextMenu(event)">Rechtermuisklik om een nieuwe functie toe te voegen</div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Diensten</div>
+            <div class="service-button" draggable="true" data-shift-id="1" data-shift-name="Ochtend dienst" data-shift-icon="🌅" data-start-time="09:00" data-end-time="17:00" ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)">
+                <div>
+                    <span class="button-icon">🌅</span>
+                    Ochtend dienst
+                </div>
+                <span class="time-info">09:00 - 17:00</span>
+            </div>
+            <div class="service-button" draggable="true" data-shift-id="2" data-shift-name="Avond dienst" data-shift-icon="🌙" data-start-time="17:30" data-end-time="22:00" ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)">
+                <div>
+                    <span class="button-icon">🌙</span>
+                    Avond dienst
+                </div>
+                <span class="time-info">17:30 - 22:00</span>
+            </div>
+            <div class="service-button" draggable="true" data-shift-id="3" data-shift-name="Ziek" data-shift-icon="🏥" ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)">
+                <div>
+                    <span class="button-icon">🏥</span>
+                    Ziek
+                </div>
+            </div>
+            <div class="service-button" draggable="true" data-shift-id="4" data-shift-name="Anders" data-shift-icon="📝" ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)">
+                <div>
+                    <span class="button-icon">📝</span>
+                    Anders
+                </div>
+            </div>
+        </div>
+
+        <a href="#" class="function-button" style="background-color: #dc3545; color: white; padding: 8px 12px; margin-top: 20px; margin-bottom: 4px;" onclick="clearAllTimeBlocks()">
+            <span class="button-icon">🗑️</span> Alle tijden wissen
+        </a>
+    </div>
+
+    <div class="main-content">
+        <!-- Date Display -->
+        <div class="date-display" style="font-size: 1.2em; margin-bottom: 15px; font-weight: 500;"></div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+            <button class="filter-button" onclick="toggleView()">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="viewToggleText">Week</span>
+            </button>
+            <button class="filter-button">
+                <i class="fas fa-filter"></i>
+                Actief
+            </button>
+            <button class="filter-button">
+                <i class="fas fa-sort"></i>
+                Sorteer
+            </button>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="employeeSearch" placeholder="Zoek medewerker..." oninput="filterEmployees(this.value)">
+            </div>
+        </div>
+
+        <!-- Timeline Header -->
+        <div class="timeline-header">
+            <div style="width: 200px;"></div> <!-- Spacer for employee names -->
+            <div class="timeline-hours" id="dayTimeline" style="display: flex; flex: 1;">
+                <div class="timeline-hour">08:00</div>
+                <div class="timeline-hour">09:00</div>
+                <div class="timeline-hour">10:00</div>
+                <div class="timeline-hour">11:00</div>
+                <div class="timeline-hour">12:00</div>
+                <div class="timeline-hour">13:00</div>
+                <div class="timeline-hour">14:00</div>
+                <div class="timeline-hour">15:00</div>
+                <div class="timeline-hour">16:00</div>
+                <div class="timeline-hour">17:00</div>
+                <div class="timeline-hour">18:00</div>
+                <div class="timeline-hour">19:00</div>
+                <div class="timeline-hour">20:00</div>
+            </div>
+            <div class="timeline-hours" id="weekTimeline" style="display: none; flex: 1;">
+                <div class="timeline-day">
+                    <div class="day-header">Maandag</div>
+                    <div class="timeline-hours-grid">
+                        <div class="timeline-hour">08:00</div>
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                    </div>
+                </div>
+                <div class="timeline-day">
+                    <div class="day-header">Dinsdag</div>
+                    <div class="timeline-hours-grid">
+                        <div class="timeline-hour">08:00</div>
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                    </div>
+                </div>
+                <div class="timeline-day">
+                    <div class="day-header">Woensdag</div>
+                    <div class="timeline-hours-grid">
+                        <div class="timeline-hour">08:00</div>
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                    </div>
+                </div>
+                <div class="timeline-day">
+                    <div class="day-header">Donderdag</div>
+                    <div class="timeline-hours-grid">
+                        <div class="timeline-hour">08:00</div>
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                    </div>
+                </div>
+                <div class="timeline-day">
+                    <div class="day-header">Vrijdag</div>
+                    <div class="timeline-hours-grid">
+                        <div class="timeline-hour">08:00</div>
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                    </div>
+                </div>
+                <div class="timeline-day">
+                    <div class="day-header">Zaterdag</div>
+                    <div class="timeline-hours-grid">
+                        <div class="timeline-hour">08:00</div>
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                    </div>
+                </div>
+                <div class="timeline-day">
+                    <div class="day-header">Zondag</div>
+                    <div class="timeline-hours-grid">
+                        <div class="timeline-hour">08:00</div>
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Sections -->
+        <div class="department-section">
+            <div class="department-header">
+                <span>Bediening</span>
+                <span>Week @DateTime.Now.ToString("dd-MM-yyyy")</span>
+            </div>
+
+            <!-- Week Header -->
+            <div class="week-header">
+                <div style="width: 150px;"></div>
+                <div class="week-day">Woensdag<br/>12-08-2025</div>
+                <div class="week-day">Donderdag<br/>13-08-2025</div>
+                <div class="week-day current">Vrijdag<br/>14-08-2025</div>
+                <div class="week-day">Zaterdag<br/>15-08-2025</div>
+                <div class="week-day">Zondag<br/>16-08-2025</div>
+                <div class="week-day">Maandag<br/>17-08-2025</div>
+                <div class="week-day">Dinsdag<br/>18-08-2025</div>
+            </div>
+            
+            <!-- Middag Section -->
+            <div class="shift-section">
+                <div class="shift-header" style="font-weight: bold; font-size: 3em;">Middag</div>
+                <div class="employee-row" data-employee-id="ninaH">
+                    <div class="employee-name">NinaH</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+            </div>
+            </div>
+                <div class="employee-row" data-employee-id="daphneV">
+                    <div class="employee-name">DaphneV</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="finnT">
+                    <div class="employee-name">FinnT</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="lisaM">
+                    <div class="employee-name">LisaM</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="thomasK">
+                    <div class="employee-name">ThomasK</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="sophieB">
+                    <div class="employee-name">SophieB</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="lucasP">
+                    <div class="employee-name">LucasP</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="emmaW">
+                    <div class="employee-name">EmmaW</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="noahD">
+                    <div class="employee-name">NoahD</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+            </div>
+        </div>
+
+            <!-- Avond Section -->
+            <div class="shift-section">
+                <div class="shift-header" style="font-weight: bold; font-size: 3em;">Avond</div>
+                <div class="employee-row" data-employee-id="ninaH">
+                    <div class="employee-name">NinaH</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+            </div>
+            </div>
+                <div class="employee-row" data-employee-id="daphneV">
+                    <div class="employee-name">DaphneV</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+            </div>
+                </div>
+                <div class="employee-row" data-employee-id="finnT">
+                    <div class="employee-name">FinnT</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="lisaM">
+                    <div class="employee-name">LisaM</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="thomasK">
+                    <div class="employee-name">ThomasK</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="sophieB">
+                    <div class="employee-name">SophieB</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="lucasP">
+                    <div class="employee-name">LucasP</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="emmaW">
+                    <div class="employee-name">EmmaW</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="noahD">
+                    <div class="employee-name">NoahD</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="oliviaR">
+                    <div class="employee-name">OliviaR</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="jamesM">
+                    <div class="employee-name">JamesM</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="avaL">
+                    <div class="employee-name">AvaL</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="williamS">
+                    <div class="employee-name">WilliamS</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="miaK">
+                    <div class="employee-name">MiaK</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="masonH">
+                    <div class="employee-name">MasonH</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="harperP">
+                    <div class="employee-name">HarperP</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="elijahB">
+                    <div class="employee-name">ElijahB</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="ameliaC">
+                    <div class="employee-name">AmeliaC</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="benjaminF">
+                    <div class="employee-name">BenjaminF</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="charlotteM">
+                    <div class="employee-name">CharlotteM</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="henryR">
+                    <div class="employee-name">HenryR</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+                <div class="employee-row" data-employee-id="sophiaL">
+                    <div class="employee-name">SophiaL</div>
+                    <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+    <!-- Add Function Modal -->
+    <div class="modal" id="addFunctionModal" style="display: none;">
+        <div class="modal-content">
+            <h3>Nieuwe functie toevoegen</h3>
+            <div class="form-group">
+                <label>Naam:</label>
+                <input type="text" id="newFunctionName" placeholder="Voer functienaam in">
+            </div>
+            <div class="form-group">
+                <label>Emoji:</label>
+                <div class="emoji-picker">
+                    <input type="text" id="newFunctionEmoji" placeholder="Kies een emoji" readonly>
+                    <div class="emoji-grid">
+                        <span onclick="selectEmoji('👨‍💼')">👨‍💼</span>
+                        <span onclick="selectEmoji('👨‍🍳')">👨‍🍳</span>
+                        <span onclick="selectEmoji('🍳')">🍳</span>
+                        <span onclick="selectEmoji('🧹')">🧹</span>
+                        <span onclick="selectEmoji('👨‍⚕️')">👨‍⚕️</span>
+                        <span onclick="selectEmoji('👨‍💻')">👨‍💻</span>
+                        <span onclick="selectEmoji('👨‍🔧')">👨‍🔧</span>
+                        <span onclick="selectEmoji('👨‍🔬')">👨‍🔬</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Kleur:</label>
+                <div class="color-picker">
+                    <input type="color" id="newFunctionColor" value="#007bff">
+                    <div class="color-presets">
+                        <span style="background-color: #dc3545" onclick="selectColor('#dc3545')"></span>
+                        <span style="background-color: #28a745" onclick="selectColor('#28a745')"></span>
+                        <span style="background-color: #007bff" onclick="selectColor('#007bff')"></span>
+                        <span style="background-color: #ffc107" onclick="selectColor('#ffc107')"></span>
+                        <span style="background-color: #6f42c1" onclick="selectColor('#6f42c1')"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="closeAddFunctionModal()">Annuleren</button>
+                <button onclick="saveNewFunction()">Opslaan</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/contextMenu.js" asp-append-version="true"></script>
+
+    <script>
+        let currentDate = new Date();
+        let selectedDate = new Date();
+        let pendingDropData = null;
+        let pendingDropTarget = null;
+        let isWeekView = false;
+
+        function updateCalendar() {
+            const monthNames = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 
+                              'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'];
+            
+            // Update month display
+            document.getElementById('currentMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+            // Clear existing calendar days
+            const calendarGrid = document.getElementById('calendarGrid');
+            const headerCells = Array.from(calendarGrid.getElementsByClassName('calendar-day-header'));
+            calendarGrid.innerHTML = '';
+            headerCells.forEach(cell => calendarGrid.appendChild(cell));
+
+            // Get first day of month and total days
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            
+            // Get day of week for first day (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+            let firstDayOfWeek = firstDay.getDay();
+            firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // Convert to Monday = 0
+
+            // Add days from previous month
+            const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                const prevDate = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), prevMonth.getDate() - i);
+                dayDiv.textContent = prevDate.getDate();
+                dayDiv.onclick = () => selectDate(prevDate);
+                calendarGrid.appendChild(dayDiv);
+            }
+
+            // Add days of current month
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                
+                const currentDayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                
+                // Check if weekend
+                const dayOfWeek = currentDayDate.getDay();
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    dayDiv.classList.add('weekend');
+                }
+                
+                // Check if today
+                const today = new Date();
+                if (currentDayDate.toDateString() === today.toDateString()) {
+                    dayDiv.classList.add('today');
+                }
+                
+                // Check if selected
+                if (currentDayDate.toDateString() === selectedDate.toDateString()) {
+                    dayDiv.classList.add('selected');
+                }
+                
+                dayDiv.textContent = day;
+                dayDiv.onclick = () => selectDate(currentDayDate);
+                calendarGrid.appendChild(dayDiv);
+            }
+
+            // Add days from next month
+            const totalCells = 42; // 6 rows × 7 days
+            const remainingCells = totalCells - calendarGrid.children.length;
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                const nextDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, day);
+                dayDiv.textContent = day;
+                dayDiv.onclick = () => selectDate(nextDate);
+                calendarGrid.appendChild(dayDiv);
+            }
+        }
+
+        function selectDate(date) {
+            selectedDate = date;
+            currentDate = date;
+            updateCalendar();
+            
+            // Clear existing time blocks
+            document.querySelectorAll('.time-block').forEach(block => block.remove());
+            
+            // Load time blocks for the new date
+            loadTimeBlocks();
+            
+            // Update URL without page refresh
+            const dateString = date.toISOString().split('T')[0];
+            window.history.pushState({ date: dateString }, '', `/?date=${dateString}`);
+
+            // Update the date display in the main content
+            const dateDisplay = document.querySelector('.date-display');
+            if (dateDisplay) {
+                const dayNames = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
+                const monthNames = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 
+                                  'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'];
+                
+                const dayName = dayNames[date.getDay()];
+                const dayNumber = date.getDate();
+                const monthName = monthNames[date.getMonth()];
+                const year = date.getFullYear();
+                
+                dateDisplay.textContent = `${dayName} ${dayNumber} ${monthName} ${year}`;
+            }
+
+            if (isWeekView) {
+                updateWeekHeaders();
+            }
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        }
+
+        // Initialize calendar with the server's selected date if available
+        if (window.serverSelectedDate) {
+            currentDate = new Date(window.serverSelectedDate);
+            selectedDate = new Date(window.serverSelectedDate);
+        }
+
+        // Initialize drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get date from URL if available
+            const urlParams = new URLSearchParams(window.location.search);
+            const dateParam = urlParams.get('date');
+            if (dateParam) {
+                const date = new Date(dateParam);
+                selectedDate = date;
+                currentDate = date;
+            }
+        updateCalendar();
+            loadTimeBlocks();
+            selectDate(selectedDate); // This will update the date display
+
+            // Initialize drag and drop for function and service buttons
+        document.querySelectorAll('.function-button, .service-button').forEach(button => {
+                button.setAttribute('draggable', 'true');
+                button.addEventListener('dragstart', handleDragStart);
+                button.addEventListener('dragend', handleDragEnd);
+            });
+
+            // Initialize drop zones (day columns)
+            document.querySelectorAll('.day-column').forEach(column => {
+                column.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    column.classList.add('dragover');
+                });
+
+                column.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    column.classList.add('dragover');
+            });
+
+                column.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    column.classList.remove('dragover');
+            });
+
+                column.addEventListener('drop', (e) => {
+                e.preventDefault();
+                    column.classList.remove('dragover');
+                
+                    try {
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                        const employeeRow = column.closest('.employee-row');
+                        
+                        if (employeeRow) {
+                            // Set the day index based on the column's position
+                            const dayColumns = employeeRow.querySelectorAll('.day-column');
+                            const dayIndex = Array.from(dayColumns).indexOf(column);
+                            data.dayIndex = dayIndex;
+                            
+                            if (data.type === 'shift' && (data.id === "3" || data.id === "4")) {
+                                showTimeInput(data, employeeRow, column);
+                    } else {
+                                createTimeBlock(data, employeeRow, column);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error processing drop:', error);
+                    }
+                });
+            });
+        });
+
+        function showTimeInput(data, target, column = null) {
+            pendingDropData = data;
+            pendingDropTarget = target;
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('timeInputPopup').classList.add('show');
+        }
+
+        function closeTimeInput() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('timeInputPopup').classList.remove('show');
+            pendingDropData = null;
+            pendingDropTarget = null;
+        }
+
+        function saveCustomTime() {
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            if (pendingDropData && pendingDropTarget) {
+                pendingDropData.startTime = startTime;
+                pendingDropData.endTime = endTime;
+                createTimeBlock(pendingDropData, pendingDropTarget);
+                closeTimeInput();
+            }
+        }
+
+        function createTimeBlock(data, target, column = null) {
+            const timeBlock = document.createElement('div');
+            timeBlock.className = 'time-block';
+            timeBlock.dataset.employee = target.dataset.employeeId;
+            
+            // Set data attributes
+            if (data.type === 'function') {
+                timeBlock.dataset.functionId = data.id;
+                timeBlock.dataset.functionName = data.name;
+                timeBlock.dataset.functionIcon = data.icon;
+            } else {
+                timeBlock.dataset.shiftId = data.id;
+                timeBlock.dataset.shiftName = data.name;
+                timeBlock.dataset.shiftIcon = data.icon;
+            }
+            
+                timeBlock.dataset.startTime = data.startTime || '09:00';
+                timeBlock.dataset.endTime = data.endTime || '17:00';
+            timeBlock.dataset.dayIndex = data.dayIndex || 0;
+            
+            // Create block content with improved styling
+            const blockContent = document.createElement('div');
+            blockContent.className = 'block-content';
+            blockContent.style.display = 'flex';
+            blockContent.style.alignItems = 'center';
+            blockContent.style.gap = '8px';
+            blockContent.style.width = '100%';
+            
+            const icon = document.createElement('span');
+            icon.className = 'block-icon';
+            icon.textContent = data.icon;
+            icon.style.fontSize = '1.2em';
+            
+            const info = document.createElement('div');
+            info.className = 'block-info';
+            info.style.flex = '1';
+            
+            const title = document.createElement('span');
+            title.className = 'block-title';
+            title.textContent = data.name;
+            title.style.fontWeight = '500';
+            title.style.display = 'block';
+            
+            const timeRange = document.createElement('span');
+            timeRange.className = 'time-range';
+            timeRange.textContent = `${timeBlock.dataset.startTime} - ${timeBlock.dataset.endTime}`;
+            timeRange.style.fontSize = '0.8em';
+            timeRange.style.opacity = '0.9';
+            
+            info.appendChild(title);
+            info.appendChild(timeRange);
+            
+            blockContent.appendChild(icon);
+            blockContent.appendChild(info);
+            timeBlock.appendChild(blockContent);
+            
+            // Add delete button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                timeBlock.remove();
+                saveTimeBlock(timeBlock);
+            };
+            timeBlock.appendChild(deleteBtn);
+            
+            // Set background color
+            timeBlock.style.backgroundColor = data.color || '#007bff';
+            
+            // Add to the specific column if provided, otherwise use day index
+            if (column) {
+                column.appendChild(timeBlock);
+            } else if (isWeekView) {
+                const dayColumns = target.querySelectorAll('.day-column');
+                const targetColumn = dayColumns[timeBlock.dataset.dayIndex];
+                if (targetColumn) {
+                    targetColumn.appendChild(timeBlock);
+                }
+            } else {
+                target.appendChild(timeBlock);
+            }
+            
+            makeBlockDraggable(timeBlock);
+            saveTimeBlock(timeBlock);
+        }
+
+        function makeBlockDraggable(block) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            block.addEventListener('mousedown', function(e) {
+                if (e.target.classList.contains('delete-btn')) return;
+                
+                isDragging = true;
+                startX = e.clientX - block.offsetLeft;
+                startY = e.clientY - block.offsetTop;
+                initialX = block.offsetLeft;
+                initialY = block.offsetTop;
+                
+                block.style.zIndex = '1000';
+                block.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                
+                const newX = e.clientX - startX;
+                const newY = e.clientY - startY;
+                
+                if (isWeekView) {
+                    // In week view, snap to day columns
+                    const dayWidth = 200;
+                    const dayIndex = Math.round(newX / dayWidth);
+                    const boundedX = Math.max(0, Math.min(dayIndex * dayWidth, 6 * dayWidth));
+                    
+                    // Snap to 30-minute intervals vertically
+                    const snappedY = Math.round(newY / 30) * 30;
+                    const boundedY = Math.max(0, Math.min(snappedY, 450 - block.offsetHeight));
+                    
+                    block.style.left = `${boundedX}px`;
+                    block.style.top = `${boundedY}px`;
+                } else {
+                    // In day view, snap to 30-minute intervals horizontally
+                    const snappedX = Math.round(newX / 30) * 30;
+                    const boundedX = Math.max(0, Math.min(snappedX, 24 * 60 - block.offsetWidth));
+                    
+                    block.style.left = `${boundedX}px`;
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                block.style.zIndex = '';
+                block.style.cursor = '';
+                
+                // Update times based on new position
+                if (isWeekView) {
+                    const dayIndex = Math.round(parseFloat(block.style.left) / 200);
+                    const startMinutes = parseFloat(block.style.top);
+                    const durationMinutes = parseFloat(block.style.height);
+                    
+                    block.dataset.startTime = minutesToTime(startMinutes);
+                    block.dataset.endTime = minutesToTime(startMinutes + durationMinutes);
+                    block.dataset.dayIndex = dayIndex;
+                } else {
+                    const startMinutes = parseFloat(block.style.left);
+                    const durationMinutes = parseFloat(block.style.width);
+                    
+                    block.dataset.startTime = minutesToTime(startMinutes);
+                    block.dataset.endTime = minutesToTime(startMinutes + durationMinutes);
+                }
+                
+                // Update time display
+                const timeDisplay = block.querySelector('.time-range');
+                if (timeDisplay) {
+                    timeDisplay.textContent = `${block.dataset.startTime} - ${block.dataset.endTime}`;
+                }
+                
+                // Save changes
+                saveTimeBlock(block);
+            });
+        }
+
+        function saveTimeBlock(block) {
+            const savedBlocks = JSON.parse(localStorage.getItem('globalTimeBlocks') || '{}');
+            const employeeId = block.dataset.employee;
+            
+            if (!savedBlocks[employeeId]) {
+                savedBlocks[employeeId] = [];
+            }
+            
+            // Remove existing block for this employee if it exists
+            savedBlocks[employeeId] = savedBlocks[employeeId].filter(b => 
+                b.dayIndex !== parseInt(block.dataset.dayIndex || '0')
+            );
+            
+            // Add new block
+            savedBlocks[employeeId].push({
+                shiftTypeId: block.dataset.shiftId,
+                shiftName: block.dataset.shiftName,
+                shiftIcon: block.dataset.shiftIcon,
+                functionTypeId: block.dataset.functionId,
+                functionName: block.dataset.functionName,
+                functionIcon: block.dataset.functionIcon,
+                startTime: block.dataset.startTime,
+                endTime: block.dataset.endTime,
+                backgroundColor: block.style.backgroundColor,
+                dayIndex: parseInt(block.dataset.dayIndex || '0')
+            });
+            
+            localStorage.setItem('globalTimeBlocks', JSON.stringify(savedBlocks));
+        }
+
+        function loadTimeBlocks() {
+            document.querySelectorAll('.time-block').forEach(block => block.remove());
+            
+            const savedBlocks = localStorage.getItem('globalTimeBlocks');
+            if (savedBlocks) {
+                const allBlocks = JSON.parse(savedBlocks);
+                
+                Object.entries(allBlocks).forEach(([employeeId, blocks]) => {
+                    const employeeRow = document.querySelector(`.employee-row[data-employee-id="${employeeId}"]`);
+                    if (employeeRow) {
+                        blocks.forEach(block => {
+                            const data = {
+                                type: block.functionTypeId ? 'function' : 'shift',
+                                id: block.functionTypeId || block.shiftTypeId,
+                                name: block.functionName || block.shiftName,
+                                icon: block.functionIcon || block.shiftIcon,
+                                startTime: block.startTime,
+                                endTime: block.endTime
+                            };
+                            createTimeBlock(data, employeeRow);
+                        });
+                    }
+                });
+            }
+        }
+
+        // Update the keydown event listener to use the new delete function
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                const selectedBlock = document.querySelector('.time-block.selected');
+                if (selectedBlock) {
+                    deleteTimeBlock(selectedBlock);
+                }
+            }
+        });
+
+        // Helper function to convert minutes to time
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        // Helper function to convert time to minutes
+        function timeToMinutes(time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        // Function to clear all saved time blocks
+        function clearAllTimeBlocks() {
+            // Clear from localStorage
+            localStorage.removeItem('globalTimeBlocks');
+            
+            // Clear from DOM
+            document.querySelectorAll('.time-block').forEach(block => block.remove());
+            
+            // Reload the page to ensure everything is fresh
+            window.location.reload();
+        }
+
+        function toggleView() {
+            isWeekView = !isWeekView;
+            const viewToggleText = document.getElementById('viewToggleText');
+                        const employeeRows = document.querySelectorAll('.employee-row');
+
+            if (isWeekView) {
+                viewToggleText.textContent = 'Dag';
+                document.querySelector('.timeline-header').style.display = 'none';
+                
+                // Update employee rows for week view
+                        employeeRows.forEach(row => {
+                    row.classList.add('week-view');
+                    const timeGrid = row.querySelector('.time-grid');
+                    if (timeGrid) {
+                        timeGrid.classList.add('week-view');
+                        
+                        // Create schedule container if it doesn't exist
+                        let scheduleContainer = row.querySelector('.employee-schedule');
+                        if (!scheduleContainer) {
+                            scheduleContainer = document.createElement('div');
+                            scheduleContainer.className = 'employee-schedule';
+                            
+                            // Create columns for each day
+                            for (let i = 0; i < 7; i++) {
+                                const dayColumn = document.createElement('div');
+                                dayColumn.className = 'day-column';
+                                scheduleContainer.appendChild(dayColumn);
+                            }
+                            
+                            row.appendChild(scheduleContainer);
+                        }
+                    }
+                });
+
+                updateWeekHeaders();
+            } else {
+                viewToggleText.textContent = 'Week';
+                document.querySelector('.timeline-header').style.display = 'flex';
+                
+                // Remove week view specific elements and classes
+                employeeRows.forEach(row => {
+                    row.classList.remove('week-view');
+                    const timeGrid = row.querySelector('.time-grid');
+                    if (timeGrid) {
+                        timeGrid.classList.remove('week-view');
+                    }
+                    const scheduleContainer = row.querySelector('.employee-schedule');
+                    if (scheduleContainer) {
+                        scheduleContainer.remove();
+                    }
+                });
+            }
+            
+            loadTimeBlocks();
+        }
+
+        function updateWeekHeaders() {
+            const weekStart = new Date(selectedDate);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Start from Monday
+            
+            // Update department header week display
+            const departmentHeader = document.querySelector('.department-header');
+            if (departmentHeader) {
+                const weekText = document.createElement('span');
+                weekText.textContent = `Week ${getWeekNumber(selectedDate)}-${selectedDate.getFullYear()}`;
+                departmentHeader.querySelector('span:last-child').textContent = weekText.textContent;
+            }
+            
+            const weekHeader = document.querySelector('.week-header');
+            if (!weekHeader) {
+                return;
+            }
+            
+            // Clear existing week header
+            weekHeader.innerHTML = '<div></div>'; // Empty div for spacing
+            
+            // Add days
+            for (let i = 0; i < 7; i++) {
+                const currentDate = new Date(weekStart);
+                currentDate.setDate(weekStart.getDate() + i);
+                
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'week-day';
+                
+                if (currentDate.toDateString() === new Date().toDateString()) {
+                    dayDiv.classList.add('current');
+                }
+                
+                const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'];
+                const formattedDate = `${currentDate.getDate()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${currentDate.getFullYear()}`;
+                
+                dayDiv.innerHTML = `${dayNames[i]}<br>${formattedDate}`;
+                weekHeader.appendChild(dayDiv);
+            }
+        }
+
+        // Helper function to get week number
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+        }
+
+        function handleDragStart(event) {
+            if (!event.target || !event.target.classList) return;
+            
+            event.dataTransfer.effectAllowed = 'move';
+            const data = {
+                type: event.target.classList.contains('function-button') ? 'function' : 'shift',
+                id: event.target.dataset.functionId || event.target.dataset.shiftId,
+                name: event.target.dataset.functionName || event.target.dataset.shiftName,
+                icon: event.target.dataset.functionIcon || event.target.dataset.shiftIcon,
+                startTime: event.target.dataset.startTime || '09:00',
+                endTime: event.target.dataset.endTime || '17:00',
+                color: window.getComputedStyle(event.target).borderLeftColor
+            };
+            event.dataTransfer.setData('text/plain', JSON.stringify(data));
+            event.target.classList.add('dragging');
+
+            // Create drag image
+            const dragImage = event.target.cloneNode(true);
+            dragImage.style.width = event.target.offsetWidth + 'px';
+            dragImage.style.height = event.target.offsetHeight + 'px';
+            dragImage.style.opacity = '0.7';
+            document.body.appendChild(dragImage);
+            event.dataTransfer.setDragImage(dragImage, 0, 0);
+            setTimeout(() => {
+                if (dragImage && dragImage.parentNode) {
+                    dragImage.parentNode.removeChild(dragImage);
+                }
+            }, 0);
+        }
+
+        function handleDragEnd(event) {
+            if (event.target && event.target.classList) {
+                event.target.classList.remove('dragging');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const column = event.target.closest('.day-column');
+            if (!column) return;
+            
+            column.classList.remove('dragover');
+            
+            try {
+                const data = event.dataTransfer.getData('text/plain');
+                if (!data) {
+                    console.error('No data received in drop event');
+                    return;
+                }
+                
+                const parsedData = JSON.parse(data);
+                const employeeRow = column.closest('.employee-row');
+                
+                if (employeeRow) {
+                    const dayColumns = employeeRow.querySelectorAll('.day-column');
+                    const dayIndex = Array.from(dayColumns).indexOf(column);
+                    parsedData.dayIndex = dayIndex;
+                    
+                    if (parsedData.type === 'shift' && (parsedData.id === "3" || parsedData.id === "4")) {
+                        showTimeInput(parsedData, employeeRow, column);
+                    } else {
+                        createTimeBlock(parsedData, employeeRow, column);
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing drop:', error);
+            }
+        }
+
+        function updatePageTitle(date) {
+            const pageTitle = document.querySelector('.header-title');
+            if (pageTitle) {
+                pageTitle.textContent = `Executive | Algemeen - ${date.toLocaleDateString('nl-NL')}`;
+            }
+        }
+
+        // Update the profile image to use a simpler placeholder
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileImage = document.querySelector('.user-profile img');
+            if (profileImage) {
+                profileImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzUiIGhlaWdodD0iMzUiIHZpZXdCb3g9IjAgMCAzNSAzNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzUiIGhlaWdodD0iMzUiIGZpbGw9IiNFNUU1RTUiLz48cGF0aCBkPSJNMTcuNSAxNy41QzE5LjQzIDE3LjUgMjEgMTUuOTMgMjEgMTRDMjEgMTIuMDcgMTkuNDMgMTAuNSAxNy41IDEwLjVDMTUuNTcgMTAuNSAxNCAxMi4wNyAxNCAxNEMxNCAxNS45MyAxNS41NyAxNy41IDE3LjUgMTcuNVpNMTcuNSAxOS41QzE1LjA1IDE5LjUgOSAxOS45NSA5IDIyLjRWMjQuNUgxNlYyMi40QzE2IDIxLjA1IDE2LjY1IDIwLjUgMTcuNSAyMC41QzE4LjM1IDIwLjUgMTkgMjEuMDUgMTkgMjIuNFYyNC41SDI2VjIyLjRDMjYgMTkuOTUgMTkuOTUgMTkuNSAxNy41IDE5LjVaIiBmaWxsPSIjOTk5OTk5Ii8+PC9zdmc+';
+            }
+        });
+
+        function showAddFunctionModal() {
+            document.getElementById('addFunctionModal').style.display = 'block';
+        }
+
+        function closeAddFunctionModal() {
+            document.getElementById('addFunctionModal').style.display = 'none';
+        }
+
+        function selectEmoji(emoji) {
+            document.getElementById('newFunctionEmoji').value = emoji;
+        }
+
+        function selectColor(color) {
+            document.getElementById('newFunctionColor').value = color;
+        }
+
+        function saveNewFunction() {
+            const name = document.getElementById('newFunctionName').value;
+            const emoji = document.getElementById('newFunctionEmoji').value;
+            const color = document.getElementById('newFunctionColor').value;
+            
+            if (!name || !emoji) {
+                alert('Vul alle velden in');
+                return;
+            }
+            
+            // Get the current highest function ID
+            const functionButtons = document.querySelectorAll('.function-button[data-function-id]');
+            const maxId = Math.max(...Array.from(functionButtons).map(btn => parseInt(btn.dataset.functionId)));
+            const newId = maxId + 1;
+            
+            // Create new function button
+            const newButton = document.createElement('div');
+            newButton.className = 'function-button';
+            newButton.draggable = true;
+            newButton.dataset.functionId = newId;
+            newButton.dataset.functionName = name;
+            newButton.dataset.functionIcon = emoji;
+            newButton.dataset.functionColor = color;
+            newButton.style.borderLeft = `4px solid ${color}`;
+            newButton.ondragstart = handleDragStart;
+            
+            newButton.innerHTML = `
+                <span class="button-icon">${emoji}</span>
+                ${name}
+                <span class="color-indicator" style="background-color: ${color};"></span>
+            `;
+            
+            // Insert before the "Add new function" button
+            const addButton = document.querySelector('.function-button:last-child');
+            addButton.parentNode.insertBefore(newButton, addButton);
+            
+            // Close modal and reset form
+            closeAddFunctionModal();
+            document.getElementById('newFunctionName').value = '';
+            document.getElementById('newFunctionEmoji').value = '';
+            document.getElementById('newFunctionColor').value = '#007bff';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addFunctionModal');
+            if (event.target === modal) {
+                closeAddFunctionModal();
+            }
+        }
+
+        function showContextMenu(event) {
+            event.preventDefault();
+            
+            // Remove any existing context menu
+            const existingMenu = document.querySelector('.context-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            // Create new context menu
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.innerHTML = `
+                <div class="context-menu-item" onclick="showAddFunctionModal()">
+                    <span class="button-icon">➕</span>
+                    Nieuwe functie toevoegen
+                </div>
+            `;
+            
+            // Position the menu at the click location
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+            
+            // Add menu to document
+            document.body.appendChild(menu);
+            
+            // Close menu when clicking outside
+            const closeMenu = function(e) {
+                if (!menu.contains(e.target)) {
+                    menu.remove();
+                }
+            };
+            
+            // Add click listener to close menu
+            document.addEventListener('click', closeMenu);
+            
+            // Remove listener after menu is closed
+            menu.addEventListener('click', function() {
+                document.removeEventListener('click', closeMenu);
+            });
+        }
+
+        // Prevent default context menu on the functions container
+        document.querySelector('.functions-container').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showContextMenu(e);
+        });
+
+        function showTimeBlockContextMenu(event, timeBlock) {
+            event.preventDefault();
+            
+            // Remove any existing context menu
+            const existingMenu = document.querySelector('.time-block-context-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            // Get all functions and services
+            const functions = Array.from(document.querySelectorAll('.function-button[data-function-id]')).map(btn => ({
+                type: 'function',
+                id: btn.dataset.functionId,
+                name: btn.dataset.functionName,
+                icon: btn.dataset.functionIcon,
+                color: btn.dataset.functionColor
+            }));
+            
+            const services = Array.from(document.querySelectorAll('.service-button[data-shift-id]')).map(btn => ({
+                type: 'shift',
+                id: btn.dataset.shiftId,
+                name: btn.dataset.shiftName,
+                icon: btn.dataset.shiftIcon,
+                startTime: btn.dataset.startTime,
+                endTime: btn.dataset.endTime
+            }));
+            
+            // Create new context menu
+            const menu = document.createElement('div');
+            menu.className = 'time-block-context-menu';
+            
+            // Add functions section
+            const functionsSection = document.createElement('div');
+            functionsSection.className = 'time-block-context-menu-section';
+            functionsSection.innerHTML = '<div class="time-block-context-menu-title">Functies</div>';
+            
+            functions.forEach(func => {
+                const item = document.createElement('div');
+                item.className = 'time-block-context-menu-item';
+                item.innerHTML = `
+                    <span class="button-icon">${func.icon}</span>
+                    ${func.name}
+                `;
+                item.onclick = () => {
+                    const data = {
+                        type: 'function',
+                        id: func.id,
+                        name: func.name,
+                        icon: func.icon,
+                        color: func.color,
+                        startTime: timeBlock.dataset.startTime,
+                        endTime: timeBlock.dataset.endTime,
+                        dayIndex: timeBlock.dataset.dayIndex
+                    };
+                    createTimeBlock(data, timeBlock.closest('.employee-row'));
+                    menu.remove();
+                };
+                functionsSection.appendChild(item);
+            });
+            
+            // Add services section
+            const servicesSection = document.createElement('div');
+            servicesSection.className = 'time-block-context-menu-section';
+            servicesSection.innerHTML = '<div class="time-block-context-menu-title">Diensten</div>';
+            
+            services.forEach(service => {
+                const item = document.createElement('div');
+                item.className = 'time-block-context-menu-item';
+                item.innerHTML = `
+                    <span class="button-icon">${service.icon}</span>
+                    ${service.name}
+                    ${service.startTime ? `<span class="time-info">${service.startTime} - ${service.endTime}</span>` : ''}
+                `;
+                item.onclick = () => {
+                    const data = {
+                        type: 'shift',
+                        id: service.id,
+                        name: service.name,
+                        icon: service.icon,
+                        startTime: service.startTime || timeBlock.dataset.startTime,
+                        endTime: service.endTime || timeBlock.dataset.endTime,
+                        dayIndex: timeBlock.dataset.dayIndex
+                    };
+                    if (service.id === "3" || service.id === "4") {
+                        showTimeInput(data, timeBlock.closest('.employee-row'));
+                    } else {
+                        createTimeBlock(data, timeBlock.closest('.employee-row'));
+                    }
+                    menu.remove();
+                };
+                servicesSection.appendChild(item);
+            });
+            
+            menu.appendChild(functionsSection);
+            menu.appendChild(servicesSection);
+            
+            // Position the menu at the click location
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+            
+            // Add menu to document
+            document.body.appendChild(menu);
+            
+            // Close menu when clicking outside
+            const closeMenu = function(e) {
+                if (!menu.contains(e.target)) {
+                    menu.remove();
+                }
+            };
+            
+            // Add click listener to close menu
+            document.addEventListener('click', closeMenu);
+            
+            // Remove listener after menu is closed
+            menu.addEventListener('click', function() {
+                document.removeEventListener('click', closeMenu);
+            });
+        }
+
+        // Add context menu event listener to all time blocks
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('contextmenu', function(e) {
+                const timeBlock = e.target.closest('.time-block');
+                if (timeBlock) {
+                    showTimeBlockContextMenu(e, timeBlock);
+                }
+            });
+        });
+
+        function filterEmployees(searchTerm) {
+            const employeeRows = document.querySelectorAll('.employee-row');
+            searchTerm = searchTerm.toLowerCase();
+            
+            employeeRows.forEach(row => {
+                const employeeName = row.querySelector('.employee-name').textContent.toLowerCase();
+                if (employeeName.includes(searchTerm)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        function createTaskBlock(task, dayColumn) {
+            const taskBlock = document.createElement('div');
+            taskBlock.className = 'task-block';
+            taskBlock.draggable = true;
+            taskBlock.style.backgroundColor = task.color;
+            taskBlock.style.top = `${task.startTime}px`;
+            taskBlock.style.height = `${task.duration}px`;
+            taskBlock.dataset.taskId = task.id;
+            taskBlock.dataset.taskName = task.name;
+            taskBlock.dataset.taskColor = task.color;
+            taskBlock.dataset.taskEmoji = task.emoji;
+            taskBlock.dataset.taskStartTime = task.startTime;
+            taskBlock.dataset.taskDuration = task.duration;
+            taskBlock.dataset.taskEmployeeId = task.employeeId;
+            taskBlock.dataset.taskDay = task.day;
+
+            const taskContent = document.createElement('div');
+            taskContent.className = 'task-content';
+            taskContent.innerHTML = `
+                <span class="task-emoji">${task.emoji}</span>
+                <span class="task-text">${task.name}</span>
+                <div class="task-time">${formatTime(task.startTime)} - ${formatTime(task.startTime + task.duration)}</div>
+            `;
+
+            taskBlock.appendChild(taskContent);
+
+            taskBlock.addEventListener('dragstart', handleDragStart);
+            taskBlock.addEventListener('dragend', handleDragEnd);
+            taskBlock.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showTaskDetails(task);
+            });
+
+            dayColumn.appendChild(taskBlock);
+        }
+
+        function showTaskDetails(task) {
+            const modal = document.getElementById('taskDetailsModal');
+            const taskDetails = document.getElementById('taskDetails');
+            taskDetails.innerHTML = `
+                <h3>${task.emoji} ${task.name}</h3>
+                <p><strong>Dag:</strong> ${getDayName(task.day)}</p>
+                <p><strong>Tijd:</strong> ${formatTime(task.startTime)} - ${formatTime(task.startTime + task.duration)}</p>
+                <p><strong>Medewerker:</strong> ${getEmployeeName(task.employeeId)}</p>
+                <button onclick="closeTaskDetails()" class="btn btn-secondary">Sluiten</button>
+            `;
+            modal.style.display = 'block';
+        }
+
+        function closeTaskDetails() {
+            const modal = document.getElementById('taskDetailsModal');
+            modal.style.display = 'none';
+        }
+
+        function getEmployeeName(employeeId) {
+            const employeeRow = document.querySelector(`[data-employee-id="${employeeId}"]`);
+            return employeeRow ? employeeRow.querySelector('.employee-name').textContent : 'Onbekend';
+        }
+
+        function getDayName(dayIndex) {
+            const days = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag', 'Zondag'];
+            return days[dayIndex] || 'Onbekend';
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        // Initialize the schedule
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSchedule();
+            setupDragAndDrop();
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,312 @@
+﻿@model PlanningSystem.Models.ScheduleViewModel
+@{
+    ViewData["Title"] = "Planning System";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>@Model.SelectedDate.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("nl-NL"))</h2>
+                <div>
+                    <button class="btn btn-primary">Filters</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <!-- Time slots header -->
+            <div class="timeline-container">
+                <div style="width: 200px; position: absolute;"></div>
+                <div class="time-grid">
+                    @foreach (var timeSlot in Model.TimeSlots)
+                    {
+                        <div class="time-slot">
+                            @($"{timeSlot.Hours:D2}:{timeSlot.Minutes:D2}")
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Restaurant Section -->
+            <div class="mt-4">
+                <h3>Restaurant</h3>
+                @foreach (var employee in Model.RestaurantEmployees)
+                {
+                    <div class="employee-row" data-employee-id="@employee.Id">
+                        <div style="width: 200px; position: absolute;">@employee.Name</div>
+                        <div class="time-grid">
+                            @foreach (var timeSlot in Model.TimeSlots)
+                            {
+                                <div class="time-slot"></div>
+                            }
+                            @if (employee.StartTime < employee.EndTime)
+                            {
+                                var startHour = employee.StartTime.Hours;
+                                var duration = (employee.EndTime - employee.StartTime).TotalHours;
+                                <div class="time-block" 
+                                     data-employee="@employee.Id"
+                                     style="left: @(startHour * 60)px; width: @(duration * 60)px;">
+                                    <div class="resize-handle left"></div>
+                                    <div class="resize-handle right"></div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Bar Section -->
+            <div class="mt-4">
+                <h3>Bar</h3>
+                @foreach (var employee in Model.BarEmployees)
+                {
+                    <div class="employee-row" data-employee-id="@employee.Id">
+                        <div style="width: 200px; position: absolute;">@employee.Name</div>
+                        <div class="time-grid">
+                            @foreach (var timeSlot in Model.TimeSlots)
+                            {
+                                <div class="time-slot"></div>
+                            }
+                            @if (employee.StartTime < employee.EndTime)
+                            {
+                                var startHour = employee.StartTime.Hours;
+                                var duration = (employee.EndTime - employee.StartTime).TotalHours;
+                                <div class="time-block" 
+                                     data-employee="@employee.Id"
+                                     style="left: @(startHour * 60)px; width: @(duration * 60)px;">
+                                    <div class="resize-handle left"></div>
+                                    <div class="resize-handle right"></div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .container-fluid {
+            padding: 20px;
+        }
+
+        .time-block {
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            background-color: #007bff;
+            color: white;
+            position: absolute;
+            height: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            cursor: move;
+            user-select: none;
+        }
+
+        .time-block:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-1px);
+        }
+
+        .time-block.dragging {
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: rgba(0,0,0,0.1);
+            cursor: ew-resize;
+            transition: background-color 0.2s ease;
+        }
+
+        .resize-handle:hover {
+            background: rgba(0,0,0,0.2);
+        }
+
+        .resize-handle.left {
+            left: 0;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .resize-handle.right {
+            right: 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .timeline-container {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .time-grid {
+            position: relative;
+            margin-left: 200px;
+            display: flex;
+            min-height: 40px;
+        }
+
+        .time-slot {
+            width: 60px;
+            border-right: 1px solid #dee2e6;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .employee-row {
+            position: relative;
+            margin-bottom: 10px;
+            min-height: 40px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        interact('.time-block')
+            .draggable({
+                inertia: true,
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        restriction: 'parent',
+                        endOnly: true
+                    })
+                ],
+                listeners: {
+                    move: dragMoveListener,
+                    start: function (event) {
+                        event.target.classList.add('dragging');
+                    },
+                    end: function (event) {
+                        event.target.classList.remove('dragging');
+                    }
+                }
+            })
+            .resizable({
+                edges: { left: '.resize-handle.left', right: '.resize-handle.right', bottom: false, top: false },
+                listeners: {
+                    move: resizeListener
+                },
+                modifiers: [
+                    interact.modifiers.restrictEdges({
+                        outer: 'parent',
+                        endOnly: true
+                    }),
+                    interact.modifiers.restrictSize({
+                        min: { width: 30 } // Minimum 30 minutes
+                    })
+                ]
+            });
+
+        function dragMoveListener(event) {
+            const target = event.target;
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            
+            // Snap to 30-minute intervals (30px)
+            const snappedX = Math.round(x / 30) * 30;
+            
+            // Ensure we don't go below 0 or beyond 23:59
+            const maxX = (24 * 60) - parseFloat(target.style.width);
+            const boundedX = Math.min(Math.max(0, snappedX), maxX);
+            
+            target.style.left = boundedX + 'px';
+            target.setAttribute('data-x', boundedX);
+            
+            updateTimeDisplay(target);
+        }
+
+        function resizeListener(event) {
+            const target = event.target;
+            let x = (parseFloat(target.getAttribute('data-x')) || 0);
+            let width = event.rect.width;
+            
+            // Snap width to 30-minute intervals (30px)
+            width = Math.round(width / 30) * 30;
+            
+            // Ensure the end time doesn't go beyond 23:59
+            const startX = parseFloat(target.style.left);
+            const maxWidth = (24 * 60) - startX;
+            width = Math.min(width, maxWidth);
+            
+            // Ensure we don't go below 0
+            const newLeft = Math.max(0, startX + event.deltaRect.left);
+            
+            // Update position and width
+            target.style.left = newLeft + 'px';
+            target.style.width = width + 'px';
+            
+            updateTimeDisplay(target);
+        }
+
+        function updateTimeDisplay(element) {
+            const startPosition = parseFloat(element.style.left);
+            const width = parseFloat(element.style.width);
+            
+            // Convert pixels to hours and minutes
+            const startMinutes = Math.max(0, startPosition);
+            const durationMinutes = Math.max(0, width);
+            
+            const startHour = Math.floor(startMinutes / 60);
+            const startMin = Math.floor(startMinutes % 60);
+            const endHour = Math.floor((startMinutes + durationMinutes) / 60);
+            const endMin = Math.floor((startMinutes + durationMinutes) % 60);
+            
+            // Ensure we don't exceed 23:59
+            const boundedEndHour = Math.min(endHour, 23);
+            const boundedEndMin = endHour >= 24 ? 59 : endMin;
+            
+            const startTime = String(startHour).padStart(2, '0') + ':' + String(startMin).padStart(2, '0');
+            const endTime = String(boundedEndHour).padStart(2, '0') + ':' + String(boundedEndMin).padStart(2, '0');
+            
+            element.textContent = startTime + ' - ' + endTime;
+            
+            // Add back the resize handles
+            if (!element.querySelector('.resize-handle.left')) {
+                const leftHandle = document.createElement('div');
+                leftHandle.className = 'resize-handle left';
+                element.appendChild(leftHandle);
+            }
+            if (!element.querySelector('.resize-handle.right')) {
+                const rightHandle = document.createElement('div');
+                rightHandle.className = 'resize-handle right';
+                element.appendChild(rightHandle);
+            }
+        }
+
+        // Initialize the calendar with the server's selected date
+        const serverSelectedDate = new Date('@Model.SelectedDate.ToString("yyyy-MM-dd")');
+        if (window.currentDate) {
+            window.currentDate = new Date(serverSelectedDate);
+            window.selectedDate = new Date(serverSelectedDate);
+            window.updateCalendar();
+        }
+
+        // Update the page title when a new date is selected
+        function updatePageTitle(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const locale = 'nl-NL';
+            const title = date.toLocaleDateString(locale, options);
+            document.querySelector('h2').textContent = title;
+        }
+
+        // Override the selectDate function to update the page title
+        const originalSelectDate = window.selectDate;
+        window.selectDate = function(date) {
+            originalSelectDate(date);
+            updatePageTitle(date);
+        };
+    </script>
+}

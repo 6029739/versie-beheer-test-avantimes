@@ -1,0 +1,165 @@
+[
+  {
+    "ContainingType": "PlanningSystem.Controllers.FunctionsController",
+    "Method": "GetFunctions",
+    "RelativePath": "api/Functions",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.FunctionsController",
+    "Method": "CreateFunction",
+    "RelativePath": "api/Functions",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "function",
+        "Type": "PlanningSystem.Models.FunctionType",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.FunctionsController",
+    "Method": "UpdateFunction",
+    "RelativePath": "api/Functions/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "function",
+        "Type": "PlanningSystem.Models.FunctionType",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.ServicesController",
+    "Method": "GetServices",
+    "RelativePath": "api/Services",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.ServicesController",
+    "Method": "CreateService",
+    "RelativePath": "api/Services",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "service",
+        "Type": "PlanningSystem.Models.ShiftType",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.ServicesController",
+    "Method": "UpdateService",
+    "RelativePath": "api/Services/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "service",
+        "Type": "PlanningSystem.Models.ShiftType",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.TimeBlocksController",
+    "Method": "CreateTimeBlock",
+    "RelativePath": "api/TimeBlocks",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "timeBlock",
+        "Type": "PlanningSystem.Models.TimeBlock",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.TimeBlocksController",
+    "Method": "GetTimeBlocks",
+    "RelativePath": "api/TimeBlocks",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "date",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.TimeBlocksController",
+    "Method": "UpdateTimeBlock",
+    "RelativePath": "api/TimeBlocks/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "timeBlock",
+        "Type": "PlanningSystem.Models.TimeBlock",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PlanningSystem.Controllers.TimeBlocksController",
+    "Method": "DeleteTimeBlock",
+    "RelativePath": "api/TimeBlocks/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
