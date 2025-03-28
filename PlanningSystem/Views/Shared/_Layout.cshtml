@@ -124,9 +124,39 @@
         }
 
         .week-header {
+            display: none; /* Hide by default */
+        }
+
+        .week-header.show {
+            display: flex; /* Show when week view is active */
+        }
+
+        .view-toggle {
             display: flex;
-            border-bottom: 1px solid #dee2e6;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .view-toggle button {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
             background-color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-toggle button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .current-date {
+            font-size: 1.2em;
+            font-weight: 500;
+            color: #333;
         }
 
         .week-day {
@@ -1067,6 +1097,22 @@
     </div>
 
     <div class="main-content">
+        <div class="view-toggle">
+            <button class="active" onclick="toggleView('day')">Dag</button>
+            <button onclick="toggleView('week')">Week</button>
+            <span class="current-date" id="currentDateDisplay"></span>
+        </div>
+        
+        <div class="week-header">
+            <div class="week-day">Maandag</div>
+            <div class="week-day">Dinsdag</div>
+            <div class="week-day">Woensdag</div>
+            <div class="week-day">Donderdag</div>
+            <div class="week-day">Vrijdag</div>
+            <div class="week-day">Zaterdag</div>
+            <div class="week-day">Zondag</div>
+        </div>
+
         <!-- Date Display -->
         <div class="date-display" style="font-size: 1.2em; margin-bottom: 15px; font-weight: 500;"></div>
 
@@ -1715,6 +1761,7 @@
         let pendingDropData = null;
         let pendingDropTarget = null;
         let isWeekView = false;
+        let currentView = 'day';
 
         function updateCalendar() {
             const monthNames = ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 
@@ -2193,61 +2240,53 @@
             window.location.reload();
         }
 
-        function toggleView() {
-            isWeekView = !isWeekView;
-            const viewToggleText = document.getElementById('viewToggleText');
-                        const employeeRows = document.querySelectorAll('.employee-row');
-
-            if (isWeekView) {
-                viewToggleText.textContent = 'Dag';
-                document.querySelector('.timeline-header').style.display = 'none';
-                
-                // Update employee rows for week view
-                        employeeRows.forEach(row => {
-                    row.classList.add('week-view');
-                    const timeGrid = row.querySelector('.time-grid');
-                    if (timeGrid) {
-                        timeGrid.classList.add('week-view');
-                        
-                        // Create schedule container if it doesn't exist
-                        let scheduleContainer = row.querySelector('.employee-schedule');
-                        if (!scheduleContainer) {
-                            scheduleContainer = document.createElement('div');
-                            scheduleContainer.className = 'employee-schedule';
-                            
-                            // Create columns for each day
-                            for (let i = 0; i < 7; i++) {
-                                const dayColumn = document.createElement('div');
-                                dayColumn.className = 'day-column';
-                                scheduleContainer.appendChild(dayColumn);
-                            }
-                            
-                            row.appendChild(scheduleContainer);
-                        }
-                    }
-                });
-
-                updateWeekHeaders();
+        function toggleView(view) {
+            currentView = view;
+            const weekHeader = document.querySelector('.week-header');
+            const viewButtons = document.querySelectorAll('.view-toggle button');
+            const employeeRows = document.querySelectorAll('.employee-row');
+            
+            // Update button states
+            viewButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.textContent.toLowerCase() === view) {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Show/hide week header
+            if (view === 'week') {
+                weekHeader.classList.add('show');
             } else {
-                viewToggleText.textContent = 'Week';
-                document.querySelector('.timeline-header').style.display = 'flex';
-                
-                // Remove week view specific elements and classes
-                employeeRows.forEach(row => {
-                    row.classList.remove('week-view');
-                    const timeGrid = row.querySelector('.time-grid');
-                    if (timeGrid) {
-                        timeGrid.classList.remove('week-view');
-                    }
-                    const scheduleContainer = row.querySelector('.employee-schedule');
-                    if (scheduleContainer) {
-                        scheduleContainer.remove();
-                    }
-                });
+                weekHeader.classList.remove('show');
             }
             
-            loadTimeBlocks();
+            // Update employee rows
+            employeeRows.forEach(row => {
+                const schedule = row.querySelector('.employee-schedule');
+                if (view === 'week') {
+                    schedule.style.display = 'flex';
+                } else {
+                    schedule.style.display = 'none';
+                }
+            });
+            
+            // Update current date display
+            updateCurrentDateDisplay();
         }
+
+        function updateCurrentDateDisplay() {
+            const dateDisplay = document.getElementById('currentDateDisplay');
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.textContent = today.toLocaleDateString('nl-NL', options);
+        }
+
+        // Initialize the view
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleView('day');
+            // ... rest of your existing DOMContentLoaded code ...
+        });
 
         function updateWeekHeaders() {
             const weekStart = new Date(selectedDate);
