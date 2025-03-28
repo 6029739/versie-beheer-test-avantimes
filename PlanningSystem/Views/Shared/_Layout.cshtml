@@ -86,13 +86,32 @@
         }
 
         .filters-bar {
+            display: none; /* Hide the entire filters bar */
+        }
+
+        .search-container {
             display: flex;
+            align-items: center;
             gap: 10px;
             margin-bottom: 20px;
             padding: 10px;
             background-color: white;
             border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
         }
 
         .filter-button {
@@ -1097,6 +1116,10 @@
     </div>
 
     <div class="main-content">
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Zoek medewerker..." onkeyup="filterEmployees(this.value)">
+        </div>
+        
         <div class="view-toggle">
             <button class="active" onclick="toggleView('day')">Dag</button>
             <button onclick="toggleView('week')">Week</button>
@@ -1115,26 +1138,6 @@
 
         <!-- Date Display -->
         <div class="date-display" style="font-size: 1.2em; margin-bottom: 15px; font-weight: 500;"></div>
-
-        <!-- Filters Bar -->
-        <div class="filters-bar">
-            <button class="filter-button" onclick="toggleView()">
-                <i class="fas fa-calendar-alt"></i>
-                <span id="viewToggleText">Week</span>
-            </button>
-            <button class="filter-button">
-                <i class="fas fa-filter"></i>
-                Actief
-            </button>
-            <button class="filter-button">
-                <i class="fas fa-sort"></i>
-                Sorteer
-            </button>
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="employeeSearch" placeholder="Zoek medewerker..." oninput="filterEmployees(this.value)">
-            </div>
-        </div>
 
         <!-- Timeline Header -->
         <div class="timeline-header">
