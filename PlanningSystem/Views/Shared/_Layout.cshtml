@@ -234,6 +234,51 @@
             background-color: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
             color: #333;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .timeline-container {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            height: 30px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .timeline-hour {
+            flex: 1;
+            height: 100%;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: #666;
+            position: relative;
+        }
+
+        .timeline-hour::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #dee2e6;
+        }
+
+        .timeline-half-hour {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            height: 10px;
+            background-color: #dee2e6;
         }
 
         .time-block {
@@ -1214,7 +1259,26 @@
             
             <!-- Middag Section -->
             <div class="shift-section">
-                <div class="shift-header" style="font-weight: bold; font-size: 3em;">Middag</div>
+                <div class="shift-header">
+                    <span>Middag</span>
+                    <div class="timeline-container">
+                        <div class="timeline-hour">09:00</div>
+                        <div class="timeline-hour">10:00</div>
+                        <div class="timeline-hour">11:00</div>
+                        <div class="timeline-hour">12:00</div>
+                        <div class="timeline-hour">13:00</div>
+                        <div class="timeline-hour">14:00</div>
+                        <div class="timeline-hour">15:00</div>
+                        <div class="timeline-hour">16:00</div>
+                        <div class="timeline-hour">17:00</div>
+                        <div class="timeline-hour">18:00</div>
+                        <div class="timeline-hour">19:00</div>
+                        <div class="timeline-hour">20:00</div>
+                        <div class="timeline-hour">21:00</div>
+                        <div class="timeline-hour">22:00</div>
+                        <div class="timeline-hour">23:00</div>
+                    </div>
+                </div>
                 <div class="employee-row" data-employee-id="ninaH">
                     <div class="employee-name">NinaH</div>
                     <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
@@ -2656,6 +2720,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadSchedule();
             setupDragAndDrop();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add half-hour markers to timeline
+            const timelineHours = document.querySelectorAll('.timeline-hour');
+            timelineHours.forEach(hour => {
+                const halfHour = document.createElement('div');
+                halfHour.className = 'timeline-half-hour';
+                hour.appendChild(halfHour);
+            });
         });
     </script>
 
