@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\PlanningSystem\\PlanningSystem.csproj": {}
+    "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\versie-beheer-test-avantimes\\PlanningSystem\\PlanningSystem.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\PlanningSystem\\PlanningSystem.csproj": {
+    "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\versie-beheer-test-avantimes\\PlanningSystem\\PlanningSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\PlanningSystem\\PlanningSystem.csproj",
+        "projectUniqueName": "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\versie-beheer-test-avantimes\\PlanningSystem\\PlanningSystem.csproj",
         "projectName": "PlanningSystem",
-        "projectPath": "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\PlanningSystem\\PlanningSystem.csproj",
+        "projectPath": "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\versie-beheer-test-avantimes\\PlanningSystem\\PlanningSystem.csproj",
         "packagesPath": "C:\\Users\\Gebruiker\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\PlanningSystem\\obj\\",
+        "outputPath": "C:\\Users\\Gebruiker\\Desktop\\c#joel\\planning\\versie-beheer-test-avantimes\\PlanningSystem\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
