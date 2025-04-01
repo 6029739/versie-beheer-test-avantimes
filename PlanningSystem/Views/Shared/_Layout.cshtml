@@ -152,24 +152,35 @@
 
         .view-toggle {
             display: flex;
-            align-items: center;
             gap: 10px;
             margin-bottom: 15px;
+            align-items: center;
         }
 
         .view-toggle button {
             padding: 8px 16px;
             border: 1px solid #dee2e6;
+            background-color: #fff;
             border-radius: 4px;
-            background-color: white;
             cursor: pointer;
-            transition: all 0.2s ease;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button:hover {
+            background-color: #f8f9fa;
         }
 
         .view-toggle button.active {
             background-color: #007bff;
-            color: white;
-            border-color: #007bff;
+            color: #fff;
+            border-color: #0056b3;
+        }
+
+        .view-toggle #currentDate {
+            margin-left: auto;
+            font-size: 0.9em;
+            color: #666;
         }
 
         .current-date {
@@ -193,39 +204,36 @@
         }
 
         .employee-row {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            min-height: 50px;
-            width: 100%;
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            border: 1px solid #dee2e6;
+            margin-bottom: 5px;
+            background-color: #fff;
         }
 
         .employee-name {
-            width: 100px;
-            padding: 8px;
-            background-color: #f5f5f5;
-            border-right: 1px solid #ddd;
+            padding: 10px;
+            border-right: 1px solid #dee2e6;
+            background-color: #f8f9fa;
             display: flex;
             align-items: center;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .employee-schedule {
-            display: flex;
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-top: 10px;
+            width: 100%;
         }
 
         .day-column {
-            flex: 1;
-            min-width: 0;
+            width: 100%;
             min-height: 50px;
-            border-right: 1px solid #ddd;
+            border-right: 1px solid #dee2e6;
             position: relative;
-            overflow: hidden;
         }
 
         .task-block {
@@ -291,90 +299,17 @@
         .timeline-container {
             display: flex;
             align-items: center;
-            flex: 1;
             height: 30px;
             background-color: #fff;
             border: 1px solid #dee2e6;
-            border-radius: 4px 4px 0 0;
+            border-radius: 4px;
             overflow: hidden;
             margin-bottom: 0;
             position: relative;
         }
 
-        .days-container {
+        .week-view .timeline-container {
             display: none;
-            background-color: #fff;
-            border: 1px solid #dee2e6;
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-        }
-
-        .days-container.show {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-        }
-
-        .day-column-header {
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            background-color: #f8f9fa;
-            border-right: 1px solid #dee2e6;
-        }
-
-        .day-name {
-            padding: 8px 4px;
-            text-align: center;
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .day-timeline {
-            display: none;
-            height: 20px;
-            border-top: 1px solid #dee2e6;
-            position: relative;
-            background-color: #fff;
-            padding: 0 2px;
-        }
-
-        .week-view .day-timeline {
-            display: flex;
-            flex-direction: column;
-            font-size: 0.7em;
-            color: #666;
-            position: relative;
-        }
-
-        .timeline-marks {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 100%;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .timeline-mark {
-            position: relative;
-            width: 1px;
-            height: 5px;
-            background-color: #dee2e6;
-        }
-
-        .timeline-mark.hour {
-            height: 8px;
-        }
-
-        .timeline-mark.hour::after {
-            content: attr(data-time);
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.8em;
-            white-space: nowrap;
         }
 
         .timeline-hour {
@@ -389,23 +324,215 @@
             position: relative;
         }
 
-        .employee-schedule {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            margin-top: 10px;
+        .timeline-half-hour {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 1px;
+            height: 8px;
+            background-color: #dee2e6;
         }
 
-        .day-column {
-            min-height: 50px;
-            border-right: 1px solid #dee2e6;
+        .service-block {
+            position: absolute;
+            top: 2px;
+            bottom: 2px;
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-size: 0.85em;
+            color: #333;
+            cursor: pointer;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            z-index: 1;
+        }
+
+        .service-block.training {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .service-block.meeting {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .service-block.appointment {
+            background-color: #03a9f4;
+            color: white;
+        }
+
+        .service-block.conference {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .service-block.internal {
+            background-color: #9e9e9e;
+            color: white;
+        }
+
+        .service-block.leave {
+            background: repeating-linear-gradient(
+                45deg,
+                #f5f5f5,
+                #f5f5f5 10px,
+                #e0e0e0 10px,
+                #e0e0e0 20px
+            );
+        }
+
+        .confirmation-badge {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 0 4px;
+            border-radius: 2px;
+            font-size: 0.8em;
+        }
+
+        .employee-schedule {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 1px;
+            background-color: #fff;
+            padding: 5px;
+            position: relative;
+            height: 100%;
+            min-height: 40px;
+        }
+
+        .time-column {
+            border-right: 1px solid #eee;
+            position: relative;
+            height: 100%;
+        }
+
+        .time-column:last-child {
+            border-right: none;
+        }
+
+        .timeline-header {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 1px;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .timeline-hour {
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+            padding: 2px 0;
             position: relative;
         }
 
-        .day-column:last-child {
+        .timeline-hour::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            height: 8px;
+            width: 1px;
+            background-color: #dee2e6;
+            transform: translateY(-50%);
+        }
+
+        .employee-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            margin-bottom: 5px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .employee-name {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            font-weight: 500;
+        }
+
+        .employee-schedule {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 0;
+            padding: 5px;
+            position: relative;
+        }
+
+        .time-slot {
+            border-right: 1px solid #eee;
+            height: 40px;
+            position: relative;
+        }
+
+        .time-slot:last-child {
             border-right: none;
+        }
+
+        .day-column-header {
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .day-name {
+            padding: 8px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: 500;
+            color: #333;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .day-timeline {
+            display: flex;
+            padding: 8px;
+            background-color: #fff;
+        }
+
+        .timeline-segment {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .timeline-segment:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-time {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .employee-schedule {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .day-column {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            min-height: 50px;
+            position: relative;
         }
 
         .time-block {
@@ -421,7 +548,7 @@
             align-items: center;
             gap: 8px;
             position: relative;
-            width: calc(100% - 8px);
+            width: calc(100% - 16px);
             min-height: 40px;
             overflow: hidden;
         }
@@ -966,6 +1093,169 @@
         #profileIcon:hover {
             transform: scale(1.1);
         }
+
+        .days-container {
+            display: none;
+            flex-direction: row;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .week-view .days-container {
+            display: flex;
+        }
+
+        .day-view .days-container {
+            display: none;
+        }
+
+        .day-column-header {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .day-column-header:last-child {
+            border-right: none;
+        }
+
+        .day-name {
+            padding: 8px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: 500;
+            color: #333;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .day-timeline {
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 30px;
+        }
+
+        .timeline-time {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .employee-schedule {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #fff;
+            padding: 5px;
+            position: relative;
+            height: 100%;
+        }
+
+        .time-column {
+            border-right: 1px solid #eee;
+            min-height: 40px;
+            position: relative;
+        }
+
+        .time-column:last-child {
+            border-right: none;
+        }
+
+        .service-block {
+            position: absolute;
+            top: 2px;
+            bottom: 2px;
+            border-radius: 3px;
+            padding: 2px 4px;
+            font-size: 0.85em;
+            color: #fff;
+            cursor: pointer;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            z-index: 1;
+        }
+
+        .planning-container {
+            width: 100%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .view-toggle button {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background-color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button:hover {
+            background-color: #f8f9fa;
+        }
+
+        .view-toggle button.active {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #0056b3;
+        }
+
+        .view-toggle #currentDate {
+            margin-left: auto;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .timeline-container {
+            display: flex;
+            align-items: center;
+            height: 30px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        .timeline-hour {
+            flex: 1;
+            height: 100%;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: #666;
+            position: relative;
+        }
+
+        .days-container {
+            display: none;
+            flex-direction: row;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-top: 10px;
+            width: 100%;
+        }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -1194,28 +1484,42 @@
     </div>
 
     <div class="main-content">
-        <div class="search-container">
+            <div class="search-container">
             <input type="text" class="search-input" placeholder="Zoek medewerker..." onkeyup="filterEmployees(this.value)">
-        </div>
+            </div>
         
-        <div class="view-toggle">
-            <button class="active" onclick="toggleView('day')">Dag</button>
-            <button onclick="toggleView('week')">Week</button>
-            <span class="current-date" id="currentDateDisplay"></span>
-        </div>
+        <div class="planning-container">
+            <div class="view-toggle">
+                <button id="dayButton" onclick="toggleView('day')" class="active">Dag</button>
+                <button id="weekButton" onclick="toggleView('week')">Week</button>
+                <span id="currentDate"></span>
+            </div>
+
+            <div class="timeline-header">
+                <div class="timeline-hour">09:00</div>
+                <div class="timeline-hour">09:30</div>
+                <div class="timeline-hour">10:00</div>
+                <div class="timeline-hour">10:30</div>
+                <div class="timeline-hour">11:00</div>
+                <div class="timeline-hour">11:30</div>
+                <div class="timeline-hour">12:00</div>
+                <div class="timeline-hour">12:30</div>
+                <div class="timeline-hour">13:00</div>
+                <div class="timeline-hour">13:30</div>
+                <div class="timeline-hour">14:00</div>
+                <div class="timeline-hour">14:30</div>
+                <div class="timeline-hour">15:00</div>
+                <div class="timeline-hour">15:30</div>
+                <div class="timeline-hour">16:00</div>
+                <div class="timeline-hour">16:30</div>
+            </div>
+
         
-        <div class="week-header">
-            <div class="week-day">Maandag</div>
-            <div class="week-day">Dinsdag</div>
-            <div class="week-day">Woensdag</div>
-            <div class="week-day">Donderdag</div>
-            <div class="week-day">Vrijdag</div>
-            <div class="week-day">Zaterdag</div>
-            <div class="week-day">Zondag</div>
         </div>
 
         <!-- Date Display -->
-        <div class="date-display" style="font-size: 1.2em; margin-bottom: 15px; font-weight: 500;"></div>
+        <div class="date-display" style="font-size: 1.2em; margin-bottom: 15px; font-weight: 850;"></div>
+
 
         <!-- Timeline Header -->
         <div class="timeline-header">
@@ -1387,7 +1691,7 @@
             <!-- Middag Section -->
             <div class="shift-section">
                 <div class="shift-header">
-                    <span>Middag</span>
+                    
                     <div class="timeline-container">
                         <div class="timeline-hour">09:00</div>
                         <div class="timeline-hour">10:00</div>
@@ -1398,263 +1702,68 @@
                         <div class="timeline-hour">15:00</div>
                         <div class="timeline-hour">16:00</div>
                         <div class="timeline-hour">17:00</div>
-                        <div class="timeline-hour">18:00</div>
-                        <div class="timeline-hour">19:00</div>
-                        <div class="timeline-hour">20:00</div>
-                        <div class="timeline-hour">21:00</div>
-                        <div class="timeline-hour">22:00</div>
-                        <div class="timeline-hour">23:00</div>
                     </div>
                     <div class="days-container">
                         <div class="day-column-header">
                             <div class="day-name">Maandag</div>
                             <div class="day-timeline">
-                                <div class="timeline-marks">
-                                    <div class="timeline-mark hour" data-time="9"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="10"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="11"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="12"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="13"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="14"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="15"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="16"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="17"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="18"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="19"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="20"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="21"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="22"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="23"></div>
+                                <div class="timeline-segment">
+                                    <span class="timeline-time">00:00</span>
+<span class="timeline-time" style="margin-left: 160px;">23:59</span>
                                 </div>
                             </div>
                         </div>
                         <div class="day-column-header">
                             <div class="day-name">Dinsdag</div>
                             <div class="day-timeline">
-                                <div class="timeline-marks">
-                                    <div class="timeline-mark hour" data-time="9"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="10"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="11"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="12"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="13"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="14"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="15"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="16"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="17"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="18"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="19"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="20"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="21"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="22"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="23"></div>
+                                <div class="timeline-segment">
+                                    <span class="timeline-time">00:00</span>
+<span class="timeline-time" style="margin-left: 160px;">23:59</span>
                                 </div>
                             </div>
                         </div>
                         <div class="day-column-header">
                             <div class="day-name">Woensdag</div>
                             <div class="day-timeline">
-                                <div class="timeline-marks">
-                                    <div class="timeline-mark hour" data-time="9"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="10"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="11"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="12"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="13"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="14"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="15"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="16"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="17"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="18"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="19"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="20"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="21"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="22"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="23"></div>
+                                <div class="timeline-segment">
+                                   <span class="timeline-time">00:00</span>
+<span class="timeline-time" style="margin-left: 160px;">23:59</span>
                                 </div>
                             </div>
                         </div>
                         <div class="day-column-header">
                             <div class="day-name">Donderdag</div>
                             <div class="day-timeline">
-                                <div class="timeline-marks">
-                                    <div class="timeline-mark hour" data-time="9"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="10"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="11"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="12"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="13"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="14"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="15"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="16"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="17"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="18"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="19"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="20"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="21"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="22"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="23"></div>
+                                <div class="timeline-segment">
+                                   <span class="timeline-time">00:00</span>
+<span class="timeline-time" style="margin-left: 160px;">23:59</span>
                                 </div>
                             </div>
                         </div>
                         <div class="day-column-header">
                             <div class="day-name">Vrijdag</div>
                             <div class="day-timeline">
-                                <div class="timeline-marks">
-                                    <div class="timeline-mark hour" data-time="9"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="10"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="11"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="12"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="13"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="14"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="15"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="16"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="17"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="18"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="19"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="20"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="21"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="22"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="23"></div>
+                                <div class="timeline-segment">
+                                   <span class="timeline-time">00:00</span>
+<span class="timeline-time" style="margin-left: 160px;">23:59</span>
                                 </div>
                             </div>
                         </div>
                         <div class="day-column-header">
                             <div class="day-name">Zaterdag</div>
                             <div class="day-timeline">
-                                <div class="timeline-marks">
-                                    <div class="timeline-mark hour" data-time="9"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="10"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="11"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="12"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="13"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="14"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="15"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="16"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="17"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="18"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="19"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="20"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="21"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="22"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="23"></div>
+                                <div class="timeline-segment">
+                                  <span class="timeline-time">00:00</span>
+<span class="timeline-time" style="margin-left: 160px;">23:59</span>
                                 </div>
                             </div>
                         </div>
                         <div class="day-column-header">
                             <div class="day-name">Zondag</div>
                             <div class="day-timeline">
-                                <div class="timeline-marks">
-                                    <div class="timeline-mark hour" data-time="9"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="10"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="11"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="12"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="13"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="14"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="15"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="16"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="17"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="18"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="19"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="20"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="21"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="22"></div>
-                                    <div class="timeline-mark"></div>
-                                    <div class="timeline-mark hour" data-time="23"></div>
+                                <div class="timeline-segment">
+                                    <span class="timeline-time">00:00</span>
+<span class="timeline-time" style="margin-left: 160px;">23:59</span>
                                 </div>
                             </div>
                         </div>
@@ -1676,11 +1785,13 @@
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                     </div>
                 </div>
                 <div class="employee-row" data-employee-id="daphneV">
                     <div class="employee-name">DaphneV</div>
                     <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+                        <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
@@ -1751,8 +1862,8 @@
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
                         <div class="day-column" ondragover="handleDragOver(event)" ondrop="handleDrop(event)"></div>
-                    </div>
-                </div>
+            </div>
+            </div>
                 <div class="employee-row" data-employee-id="sophieB">
                     <div class="employee-name">SophieB</div>
                     <div class="employee-schedule" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
@@ -2505,55 +2616,49 @@
         }
 
         function toggleView(view) {
-            currentView = view;
+            const timelineContainer = document.querySelector('.timeline-container');
             const daysContainer = document.querySelector('.days-container');
-            const viewButtons = document.querySelectorAll('.view-toggle button');
-            const employeeRows = document.querySelectorAll('.employee-row');
-            
-            // Update button states
-            viewButtons.forEach(button => {
-                button.classList.remove('active');
-                if (button.textContent.toLowerCase() === view) {
-                    button.classList.add('active');
-                }
-            });
-            
-            // Show/hide days container
-            if (view === 'week') {
-                daysContainer.classList.add('show');
-                // Highlight today
-                const today = new Date().getDay();
-                const dayHeaders = document.querySelectorAll('.day-column-header');
-                dayHeaders.forEach((header, index) => {
-                    if (index === (today + 6) % 7) { // Adjust for Monday start
-                        header.classList.add('today');
-                    } else {
-                        header.classList.remove('today');
-                    }
-                });
-            } else {
-                daysContainer.classList.remove('show');
+            const weekButton = document.getElementById('weekButton');
+            const dayButton = document.getElementById('dayButton');
+
+            if (!timelineContainer || !daysContainer || !weekButton || !dayButton) {
+                console.error('Required elements not found');
+                return;
             }
-            
-            // Update employee rows
-            employeeRows.forEach(row => {
-                const schedule = row.querySelector('.employee-schedule');
-                if (view === 'week') {
-                    schedule.style.display = 'flex';
-                } else {
-                    schedule.style.display = 'none';
-                }
-            });
-            
-            // Update current date display
+
+            if (view === 'week') {
+                timelineContainer.style.display = 'none';
+                daysContainer.style.display = 'flex';
+                weekButton.classList.add('active');
+                dayButton.classList.remove('active');
+            } else {
+                timelineContainer.style.display = 'flex';
+                daysContainer.style.display = 'none';
+                dayButton.classList.add('active');
+                weekButton.classList.remove('active');
+            }
+
             updateCurrentDateDisplay();
         }
 
+        // Set default view to day view when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleView('day');
+            updateCurrentDateDisplay();
+        });
+
         function updateCurrentDateDisplay() {
-            const dateDisplay = document.getElementById('currentDateDisplay');
-            const today = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dateDisplay.textContent = today.toLocaleDateString('nl-NL', options);
+            const currentDateElement = document.getElementById('currentDate');
+            if (!currentDateElement) return;
+
+            const currentDate = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            currentDateElement.textContent = currentDate.toLocaleDateString('nl-NL', options);
         }
 
         // Initialize the view
